@@ -2,9 +2,6 @@ package poker
 
 import "math/bits"
 
-// my package!
-// import "poker/utility"
-
 // 13 * 4 = 52 unique cards in poker
 // any set of cards can be fit in a >= 52 bit vector
 // we'll use uint64 for sets of cards
@@ -17,6 +14,15 @@ import "math/bits"
 // we will define each block of four bits to correspond to the number
 // and they'll be ordered by their numerical value
 // and they'll be ordered by ascending suit
+
+// ternary expression (PLEASE MOVE ELSEWHERE LATER)
+func T(condition bool, a interface{}, b interface{}) interface{} {
+	if condition {
+		return a
+	} else {
+		return b
+	}
+}
 
 type CardSet uint64
 
