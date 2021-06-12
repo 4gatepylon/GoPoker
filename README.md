@@ -1,5 +1,3 @@
-TODO: please push this into github.
+sudo go get github.com/4gatepylon/GoPoker 
 
-Later we can import from github. I've done go env and export GOPATH="$(pwd)".
-
-DO NOT FORGET THE "export"
+All go commands must be sudoed.

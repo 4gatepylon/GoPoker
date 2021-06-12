@@ -16,13 +16,13 @@ func TestRoyalFlushExist(t *testing.T) {
 }
 
 func TestRoyalFlushDoesNotExist(t *testing.T) {
-	fmt.Errorf("cunt")
+	t.Errorf("cunt")
 }
 
 func TestQuadsExist(t *testing.T) {
-	fmt.Errorf("cunt")
+	t.Errorf("cunt")
 }
 
 func TestQuadsDoNotExist(t *testing.T) {
-	fmt.Errorf("cunt")
+	t.Errorf("cunt")
 }
