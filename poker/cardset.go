@@ -1,6 +1,7 @@
 package poker
 
 import "math/bits"
+import "strings"
 
 // 13 * 4 = 52 unique cards in poker
 // any set of cards can be fit in a >= 52 bit vector
@@ -356,4 +357,61 @@ func highCard(cardset CardSet) CardSet {
 		test >>= 1
 	}
 	return test
+}
+
+// return a string of <number><suit> for example Ace of Hearts -> AH, 10 of Clubs -> 10C
+// and it will be space separated and sorted from min to max
+func CardSetToString(cardset CardSet) string {
+	// we look at the set card by card and we start
+	// by looking at the lowest card, the two of clubs
+	var card CardSet = TwoOfClubs
+
+	// this is the number of shifts from 0
+	// i.e. 1 = 1 << 0, 2 = 1 << 1, 4 = 1 << 2, 8 = 1 << 3, so 0, 1, 2, 3, ...
+	var shift byte = 4 
+
+	// Recall there are four extra aces...
+	// this will basically add an offset to the shift index / 4 (to get a step function
+	// corresponding to the number, due to integer division) and then use different offsets for
+	// different types (actually only numbers need offsets, and rest can use lookup tables, but
+	// this is good enough for our purposes and simple to write)
+
+	// ascii: (cards) 0:48, A: 65, K: 75, Q: 81, J: 74
+	var shiftBounds = [6]byte{
+		36, // numbers
+		40, // ten
+		44, // jack
+		48, // queen
+		52, // king
+		56, // ace
+	}
+	var asciiOffsets = [6]byte{
+		49, // numbers
+		75, // ten: down 9 because of shift / 4 is up by 9
+		64, // jack: down by 10 because shift / 4 is up by 10
+		70, // queen: down by 11 (ibid)
+		63, // king: down by 12 (ibid)
+		52, // ace: down by 13 (ibid)
+		// those shifts were zero indexxed
+	}
+
+	// ascii: (suits) S: 83, H: 72, D: 68, C: 67
+	// lookup by modulus (i.e. suit is clubs mod 0, diamonds mod 1 etc...)
+	var suitLookup = [4]byte{67, 68, 72, 83}
+
+	var b strings.Builder
+	for i := 0; i <6; i++ {
+		for shift < shiftBounds[i] {
+			if card & cardset > 0 {
+				b.WriteByte(shift / 4 + asciiOffsets[i])
+				b.WriteByte(suitLookup[shift%4])
+				b.WriteByte(' ')
+			}
+
+			shift ++
+			card <<= 1
+		}
+	}
+
+	return strings.TrimRight(b.String(), " ")
 }
