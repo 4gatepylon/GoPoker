@@ -16,15 +16,6 @@ import "strings"
 // and they'll be ordered by their numerical value
 // and they'll be ordered by ascending suit
 
-// ternary expression (PLEASE MOVE ELSEWHERE LATER)
-func T(condition bool, a interface{}, b interface{}) interface{} {
-	if condition {
-		return a
-	} else {
-		return b
-	}
-}
-
 type CardSet uint64
 
 // these are singleton sets (i.e. of single cards)
@@ -152,6 +143,7 @@ const (
 )
 
 const AllCards = Clubs | Diamonds | Hearts | Spades
+const NoCards = 0
 
 // to visualize use
 // fmt.Printf("% 064b", n) for a CardSet n
@@ -351,7 +343,7 @@ func singleton(cardset CardSet) CardSet {
 }
 
 // return the highest card or zero if there are no cards
-func highCard(cardset CardSet) CardSet {
+func HighCard(cardset CardSet) CardSet {
 	var test CardSet = _Ace2ofSpades
 	for test & cardset != cardset {
 		test >>= 1
