@@ -4,6 +4,8 @@ import "testing"
 import "fmt"
 import "strings"
 
+// yes I know there is a lot of code copying, sorry m88
+
 // UTILITY
 func gotButExpected(got string, expected string) string {
 	return fmt.Sprintf("\nGOT\n{%s},\nbut EXPECTED\n{%s}", got, expected)
@@ -109,67 +111,494 @@ func TestRoyalFlushDoesNotExist(t *testing.T) {
 	}
 }
 
-// func TestQuadsExist(t *testing.T) {
-// 	t.Errorf("Unimplemented!")
-// }
+func TestQuadsExist(t *testing.T) {
+	const numTests = 5
 
-// func TestQuadsDoNotExist(t *testing.T) {
-// 	t.Errorf("Unimplemented!")
-// }
+	var quads = [numTests]CardSet{
+		// check with some quads
+		Aces, // check aces always as they are an odd case
+		Twos,
+		Tens,
+		// check with more than one quad (ya never gonna happen but who knows you might mod the game so you're welcome)
+		Threes | Fours,
+		Sevens | Kings,
+	}
 
+	var expectedOutputs = [numTests]CardSet{
+		Aces,
+		Twos,
+		Tens,
+		Fours,
+		Kings,
+	}
+
+	for i := 0; i < numTests; i++ {
+		var expectedOutput = expectedOutputs[i]
+		
+		var output CardSet = fourOfAKind(quads[i])
+
+		if output != expectedOutput {
+			t.Errorf(errMsg(output, expectedOutput))
+		}
+	}
+}
+
+func TestQuadsDoNotExist(t *testing.T) {
+	const numTests = 6
+
+	var notQuads = [numTests]CardSet{
+		// check a couple with one missing
+		Aces & ^AceOfDiamonds,
+		Nines & ^NineOfHearts,
+		// a couple with two missing
+		KingOfHearts | KingOfSpades | QueenOfSpades | TenOfHearts | SixOfHearts | SixOfDiamonds | TwoOfClubs,
+		// a couple with randomness
+		Clubs,
+		// a couple with two 
+		Queens & Jacks,
+		NoCards,
+	}
+
+	var expectedOutput CardSet = NoCards
+
+	for i := 0; i < numTests; i++ {
+		var output CardSet = fourOfAKind(notQuads[i])
+		if output != expectedOutput {
+			t.Errorf(errMsg(output, expectedOutput))
+		}
+	}
+}
+
+// // TODO
 // func TestStraightExists(t *testing.T) {
+// 	const numTests = 5
+
+// 	var theres = [numTests]CardSet{
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 	}
+
+// 	var expectedOutputs = [numTests]CardSet{
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 	}
+
+// 	for i := 0; i < numTests; i++ {
+// 		var expectedOutput CardSet = expectedOutputs[i]
+// 		var output CardSet = straight(theres[i])
+
+// 		if output != expectedOutput {
+// 			t.Errorf(errMsg(output, expectedOutput))
+// 		}
+// 	}
+
 // 	t.Errorf("Unimplemented!")
 // }
 
+// // TODO
 // func TestStaightDoesNotExist(t *testing.T) {
+// 	const numTests = 5
+
+// 	var notTheres = [numTests]CardSet{
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 	}
+
+// 	var expectedOutput CardSet = 0
+
+// 	for i := 0; i < numTests; i++ {
+// 		var output CardSet = straight(notTheres[i])
+
+// 		if output != expectedOutput {
+// 			t.Errorf(errMsg(output, expectedOutput))
+// 		}
+// 	}
+
 // 	t.Errorf("Unimplemented!")
 // }
 
+// // TODO
 // func TestStraightFlushExists(t *testing.T) {
+// 	const numTests = 5
+
+// 	var theres = [numTests]CardSet{
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 	}
+
+// 	var expectedOutputs = [numTests]CardSet{
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 	}
+
+// 	for i := 0; i < numTests; i++ {
+// 		var expectedOutput CardSet = expectedOutputs[i]
+// 		var output CardSet = straightFlush(theres[i])
+
+// 		if output != expectedOutput {
+// 			t.Errorf(errMsg(output, expectedOutput))
+// 		}
+// 	}
+
 // 	t.Errorf("Unimplemented!")
 // }
 
+// // TODO
 // func TestStaightFlushDoesNotExist(t *testing.T) {
+// 	const numTests = 5
+
+// 	var notTheres = [numTests]CardSet{
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 	}
+
+// 	var expectedOutput CardSet = 0
+
+// 	for i := 0; i < numTests; i++ {
+// 		var output CardSet = straightFlush(notTheres[i])
+
+// 		if output != expectedOutput {
+// 			t.Errorf(errMsg(output, expectedOutput))
+// 		}
+// 	}
+
 // 	t.Errorf("Unimplemented!")
 // }
 
+// // TODO
 // func TestFlushExists(t *testing.T) {
+// 	const numTests = 5
+
+// 	var theres = [numTests]CardSet{
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 	}
+
+// 	var expectedOutputs = [numTests]CardSet{
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 	}
+
+// 	for i := 0; i < numTests; i++ {
+// 		var expectedOutput CardSet = expectedOutputs[i]
+// 		var output CardSet = flush(theres[i])
+
+// 		if output != expectedOutput {
+// 			t.Errorf(errMsg(output, expectedOutput))
+// 		}
+// 	}
+
 // 	t.Errorf("Unimplemented!")
 // }
 
+// // TODO
 // func TestFlushDoesNotExist(t *testing.T) {
+// 	const numTests = 5
+
+// 	var notTheres = [numTests]CardSet{
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 	}
+
+// 	var expectedOutput CardSet = 0
+
+// 	for i := 0; i < numTests; i++ {
+// 		var output CardSet = flush(notTheres[i])
+
+// 		if output != expectedOutput {
+// 			t.Errorf(errMsg(output, expectedOutput))
+// 		}
+// 	}
+
 // 	t.Errorf("Unimplemented!")
 // }
 
+// // TODO
 // func TestFullHouseExists(t *testing.T) {
-// 	t.Errorf("Unimplemented!")
+// 	const numTests = 5
+
+// 	var theres = [numTests]CardSet{
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 	}
+
+// 	var expectedOutputs = [numTests]CardSet{
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 	}
+
+// 	for i := 0; i < numTests; i++ {
+// 		var expectedOutput CardSet = expectedOutputs[i]
+// 		var output CardSet = fullHouse(theres[i])
+
+// 		if output != expectedOutput {
+// 			t.Errorf(errMsg(output, expectedOutput))
+// 		}
+// 	}
+
+// 	t.Errorf("FULL HOUSE NOT IMPLEMENTED!")
 // }
 
+// // TODO
 // func TestFullHouseDoesNotExist(t *testing.T) {
-// 	t.Errorf("Unimplemented!")
+// 	t.Errorf("FULL HOUSE NOT IMPLEMENTED!")
+
+// 	const numTests = 5
+
+// 	var notTheres = [numTests]CardSet{
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 		0,
+// 	}
+
+// 	var expectedOutput CardSet = 0
+
+// 	for i := 0; i < numTests; i++ {
+// 		var output CardSet = fullHouse(notTheres[i])
+
+// 		if output != expectedOutput {
+// 			t.Errorf(errMsg(output, expectedOutput))
+// 		}
+// 	}
 // }
 
-// func TestTripsExist(t *testing.T) {
-// 	t.Errorf("Unimplemented!")
-// }
+// // pairs and trips are slightly different since we expect to find many, so we will use
+// // function literals instead to test them
 
-// func TestTripsDoNotExist(t *testing.T) {
-// 	t.Errorf("Unimplemented!")
-// }
+func TestTrips(t *testing.T) {
+	const numTests = 9
 
-// func TestPairsExists(t *testing.T) {
-// 	t.Errorf("Unimplemented!")
-// }
+	var inputs = [numTests]CardSet{
+		// with 1 trip
+		NineOfClubs | NineOfDiamonds | NineOfSpades,
+		FourOfHearts | FourOfDiamonds | FourOfClubs | SevenOfDiamonds,
+		// with 2 trips
+		JackOfClubs | JackOfDiamonds | JackOfHearts | TenOfSpades | TenOfDiamonds | TenOfClubs | NineOfClubs,
+		// with quad (should be ignored)
+		Sevens,
+		Threes | TwoOfHearts,
+		// with no trips (with doubles)
+		AceOfClubs | TenOfHearts | QueenOfSpades | KingOfClubs | FiveOfClubs | FiveOfDiamonds | TwoOfSpades,
+		AceOfDiamonds | AceOfSpades,
+		// with no trips (no doubles)
+		Hearts,
+		NoCards,
+	}
 
-// func TestPairsDoNotExist(t *testing.T) {
-// 	t.Errorf("Unimplemented!")
-// }
+	var isExpecteds = []func(trip1, trip2 CardSet) (bool, string) {
+		// "with 1 trip"
+		func(t1, t2 CardSet) (bool, string) {
+			return (t1 == NineOfClubs | NineOfDiamonds | NineOfSpades) && t2 == 0, "9C 9D 9S, "
+		},
+		func(t1, t2 CardSet) (bool, string) {
+			return (t1 == FourOfHearts | FourOfDiamonds | FourOfClubs) && t2 == 0, "4C 4D 4H, "
+		},
+		// "with 2 trips"
+		func(t1, t2 CardSet) (bool, string) {
+			return (
+				t1 == JackOfClubs | JackOfDiamonds | JackOfHearts && 
+				t2 == TenOfSpades | TenOfDiamonds | TenOfClubs), "JC JD JH, TC TD TS"
+		},
+		// "with quad (should be ignored)"
+		func(t1, t2 CardSet) (bool, string) {
+			return t1 | t2 == 0, ", , "
+		},
+		func(t1, t2 CardSet) (bool, string) {
+			return t1 | t2 == 0, ", , "
+		},
+		// "with no trips (with doubles)"
+		func(t1, t2 CardSet) (bool, string) {
+			return t1 | t2 == 0, ", , "
+		},
+		func(t1, t2 CardSet) (bool, string) {
+			return t1 | t2 == 0, ", , "
+		},
+		// "with no trips (no doubles)"
+		func(t1, t2 CardSet) (bool, string) {
+			return t1 | t2 == 0, ", , "
+		},
+		func(t1, t2 CardSet) (bool, string) {
+			return t1 | t2 == 0, ", , "
+		},
+	}
 
-// func TestHighCard(t *testing.T) {
-// 	// test with no cards
-// 	// test with a high card
-// 	t.Errorf("Unimplemented!")
-// }
+	for i := 0; i < numTests; i++ {
+		var output1, output2 CardSet = triplet(inputs[i])
+
+		ok, message := isExpecteds[i](output1, output2)
+		if !ok {
+			var outputs string = fmt.Sprintf(
+				"{ %s, %s }", 
+				CardSetToString(output1),
+				CardSetToString(output2),
+			)
+
+			t.Errorf(gotButExpected(outputs, message))
+		}
+	}
+}
+
+// in the future you will want to identify your tests
+// maybe this is why google test was better...
+func TestPairs(t *testing.T) {
+	const numTests = 11
+
+	var inputs = [numTests]CardSet{
+		// try with 1 pair
+		KingOfDiamonds | KingOfHearts,
+		JackOfSpades | JackOfClubs | EightOfHearts | TenOfHearts | AceOfClubs | TwoOfHearts | ThreeOfSpades,
+		// try with 2 pairs
+		SixOfSpades | SixOfDiamonds | SevenOfHearts | SevenOfSpades | NineOfHearts | TenOfHearts,
+		// try with 3 pairs
+		AceOfClubs | AceOfDiamonds | KingOfHearts | KingOfClubs | ThreeOfSpades | ThreeOfHearts,
+		SevenOfClubs | SevenOfDiamonds | SixOfHearts | SixOfClubs | EightOfSpades | EightOfHearts | QueenOfSpades,
+		// try with triplets (should be ignored)
+		AceOfClubs | AceOfHearts | AceOfSpades,
+		TwoOfSpades | TwoOfClubs | TwoOfHearts | ThreeOfDiamonds | ThreeOfHearts,
+		// try with quads (should be ignored)
+		Kings,
+		Aces | NineOfClubs | TenOfHearts,
+		// try with no pairs
+		NoCards,
+		SixOfDiamonds | SevenOfSpades | EightOfSpades | NineOfClubs,
+	}
+
+	var isExpecteds = []func(pair1, pair2, pair3 CardSet) (bool, string) {
+		// "try with 1 pair"
+		func(p1, p2, p3 CardSet) (bool, string) {
+			return (p1 == (KingOfDiamonds | KingOfHearts) && p2 | p3 == 0), "KD KH, , "
+		},
+		func(p1, p2, p3 CardSet) (bool, string) {
+			return p1 == (JackOfSpades | JackOfClubs) && p2 | p3 == 0, "JS JC, , "
+		},
+		// "try with 2 pairs"
+		func(p1, p2, p3 CardSet) (bool, string) {
+			return (
+				p1 == SevenOfSpades | SevenOfHearts && 
+				p2 == SixOfSpades | SixOfDiamonds && 
+				p3 == 0), "7S 7H, 6S 6D, "
+		},
+		// "try with 3 pairs"
+		func(p1, p2, p3 CardSet) (bool, string) {
+			return (
+				p1 == AceOfDiamonds | AceOfClubs &&
+				p2 == KingOfHearts | KingOfClubs &&
+				p3 == ThreeOfSpades | ThreeOfHearts), "AD AC, KH KC, 3S 3H"
+		},
+		func(p1, p2, p3 CardSet) (bool, string) {
+			return (
+				p1 == EightOfSpades | EightOfHearts &&
+				p2 == SevenOfClubs | SevenOfDiamonds &&
+				p3 == SixOfHearts | SixOfClubs), "8S 8H, 7D 7C, 6H 6C"
+		},
+		// "try with triplets (should be ignored)"
+		func(p1, p2, p3 CardSet) (bool, string) {
+			return p1 | p2 | p3 == 0, ", , "
+		},
+		func(p1, p2, p3 CardSet) (bool, string) {
+			return p1 == (ThreeOfDiamonds | ThreeOfHearts) && p2 | p3 == 0, "3H 3D, , "
+		},
+		// "try with quads (should be ignored)"
+		func(p1, p2, p3 CardSet) (bool, string) {
+			return p1 | p2 | p3 == 0, ", , "
+		},
+		func(p1, p2, p3 CardSet) (bool, string) {
+			return p1 | p2 | p3 == 0, ", , "
+		},
+		// "try with no pairs"
+		func(p1, p2, p3 CardSet) (bool, string) {
+			return p1 | p2 | p3 == 0, "" //empty string means nothing
+		},
+		func(p1, p2, p3 CardSet) (bool, string) {
+			return p1 | p2 | p3 == 0, "" //ibid
+		},
+	}
+
+	for i := 0; i < numTests; i++ {
+		var output1, output2, output3 CardSet = pair(inputs[i])
+		
+		ok, message := isExpecteds[i](output1, output2, output3)
+		if !ok {
+			var outputs string = fmt.Sprintf(
+				"%s, %s, %s", 
+				CardSetToString(output1),
+				CardSetToString(output2),
+				CardSetToString(output3),
+			)
+
+			t.Errorf(gotButExpected(outputs, message))
+		}
+	}
+}
+
+func TestHighCard(t *testing.T) {
+	const numTests = 6
+
+	var theres = [numTests]CardSet{
+		// try singletons
+		AceOfDiamonds,
+		ThreeOfClubs,
+		// try a pair
+		SixOfHearts | SixOfSpades,
+		// try sets
+		AllCards,
+		SevenOfDiamonds | SixOfSpades | FourOfSpades,
+		NoCards,
+	}
+
+	var expectedOutputs = [numTests]CardSet{
+		AceOfDiamonds,
+		ThreeOfClubs,
+		SixOfSpades,
+		AceOfSpades,
+		SevenOfDiamonds,
+		NoCards,
+	}
+
+	for i := 0; i < numTests; i++ {
+		var expectedOutput CardSet = expectedOutputs[i]
+		var output CardSet = extractHighCard(theres[i])
+
+		if output != expectedOutput {
+			t.Errorf(errMsg(output, expectedOutput))
+		}
+	}
+}
 
 
 // tests that the proper strings are displayed

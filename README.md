@@ -29,7 +29,10 @@ Every file more or less defines a logical grouping of things. For example: a gam
 To learn golang, gRPC, and Bazel (and here I am not using gRPC nor Bazel: "Sad!" -ex president of the united states). Also to not atrophy.
 
 ## Use bitvectors
-Makes me feel like a real programmer. It's also like those vegan people who say they are vegan to help the environment or whatever, except I'm helping my server's memory consumption: it helps me sleep at night. It' also O(1) everything, including random cards/shuffling (just generate a random uint64 you fool). Honestly, I'm inspired to do this in the future.
+Makes me feel like a real programmer. It's also like those vegan people who say they are vegan to help the environment or whatever, except I'm helping my server's memory consumption: it helps me sleep at night. It' also O(1) everything, including random cards/shuffling (just generate a random uint64 you fool). Honestly, I'm inspired to do this in the future. One downside is you can't have multiple copies of each card. We'd have to create some sort of bit-matrix.
+
+## Is it written so shittily
+Notice how the later commits have less shitty code. Notice the trajectory? It was just warmup, not the real game yet.
 
 ## ... Just why?
 Why not?

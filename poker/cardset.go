@@ -2,6 +2,7 @@ package poker
 
 import "math/bits"
 import "strings"
+import "fmt"
 
 // 13 * 4 = 52 unique cards in poker
 // any set of cards can be fit in a >= 52 bit vector
@@ -105,7 +106,7 @@ const (
 
 // used to check for straights, pairs, triplets, full houses, and four of a kind
 const (
-	_Ace1s CardSet = (_Ace1ofClubs| _Ace1ofDiamonds | _Ace1ofHearts | _Ace1ofSpades) << 4 * iota
+	_Ace1s CardSet = (_Ace1ofClubs| _Ace1ofDiamonds | _Ace1ofHearts | _Ace1ofSpades) << (4 * iota)
 	Twos
 	Threes
 	Fours
@@ -170,9 +171,11 @@ func royalFlush(cardset CardSet) CardSet {
 // otherwise return the highest four of a kind they hold
 // as a card set (note, it's only possible to have one four of a kind)
 func fourOfAKind(cardset CardSet) CardSet {
-	// by construction, if you have all four _Ace2s it means
-	// you have all fou _Ace1s and therefore all Aces
-	var quad CardSet = _Ace2s
+	if cardset & Aces == Aces {
+		return Aces
+	}
+
+	var quad CardSet = Kings
 	for quad > _Ace1s {
 		if quad & cardset == quad {
 			return quad
@@ -189,7 +192,7 @@ func fourOfAKind(cardset CardSet) CardSet {
 func straightFlush(cardset CardSet) CardSet {
 	var flush CardSet = Spades
 	var straightSet = straight(cardset & flush)
-	for straightSet == 0 && flush > Spades - 1{
+	for straightSet == 0 && flush >= Clubs {
 		flush >>= 1
 		straightSet = straight(cardset & flush)
 	}
@@ -247,20 +250,20 @@ func straight(cardset CardSet) CardSet {
 	return 0
 }
 
-func maskIsTriplet(mask CardSet, highestCard CardSet) bool {
+func maskIsTriplet(mask CardSet, quad CardSet, highestCard CardSet) bool {
 	return (
-		mask == mask & ^highestCard || 
-		mask == mask & ^(highestCard >> 1) ||
-		mask == mask & ^(highestCard >> 2) ||
-		mask == mask & ^(highestCard >> 3))
+		mask == quad & ^highestCard || 
+		mask == quad & ^(highestCard >> 1) ||
+		mask == quad & ^(highestCard >> 2) ||
+		mask == quad & ^(highestCard >> 3))
 }
 
 // return 0, 0 if they have no triplets
 // otherwise return highest_triplet, 0 | lowest_triplet
 // (note that there are at most two triplets)
 func triplet(cardset CardSet) (CardSet, CardSet) {
-	var quad CardSet = _Ace2s
-	var highestCard CardSet = _Ace2ofSpades
+	var quad CardSet = Aces
+	var highestCard CardSet = AceOfSpades
 	var highTriplet CardSet = 0
 	var lowTriplet CardSet = 0
 
@@ -269,7 +272,7 @@ func triplet(cardset CardSet) (CardSet, CardSet) {
 
 		// it's one of three posible triplets (gotten by having a quad
 		// and losing one of four possible single cards)
-		var isTriplet bool = maskIsTriplet(mask, highestCard)
+		var isTriplet bool = maskIsTriplet(mask, quad, highestCard)
 
 		// can be made branchless with maxes/mins potentially
 		if isTriplet && highTriplet > 0 {
@@ -283,10 +286,6 @@ func triplet(cardset CardSet) (CardSet, CardSet) {
 		highestCard >>= 4
 	}
 
-	if highTriplet == _Ace2s {
-		highTriplet = Aces & cardset
-	}
-
 	return highTriplet, lowTriplet
 }
 
@@ -295,8 +294,8 @@ func triplet(cardset CardSet) (CardSet, CardSet) {
 // (note can have at most three pairs)
 // (note: ignores quads and ignores triplets, those won't overlap)
 func pair(cardset CardSet) (CardSet, CardSet, CardSet) {
-	var quad CardSet = _Ace2s
-	var highestCard CardSet = _Ace2ofSpades
+	var quad CardSet = Aces
+	var highestCard CardSet = AceOfSpades
 
 	var highPair CardSet = 0
 	var medPair CardSet = 0
@@ -306,8 +305,8 @@ func pair(cardset CardSet) (CardSet, CardSet, CardSet) {
 		var mask CardSet = quad & cardset
 		
 		// this is a pair if it's not a quad, triplet, or singleton
-		// could also use bitcount
-		if mask != quad && !maskIsTriplet(quad, highestCard) && singleton(mask) == 0 {
+		// could also use bitcount (and don't forget to check it's nonzero, LOL)
+		if (mask > 0) && (mask != quad) && !maskIsTriplet(mask, quad, highestCard) && singleton(mask) == 0 {
 			// consider whether to make branchless? idea is maxes and mins
 			if highPair == 0 {
 				highPair = mask
@@ -323,10 +322,6 @@ func pair(cardset CardSet) (CardSet, CardSet, CardSet) {
 		highestCard >>= 4
 	}
 
-	if highPair & _Ace1s == highPair {
-		highPair = Aces & cardset
-	}
-
 	return highPair, medPair, lowPair
 }
 
@@ -334,8 +329,10 @@ func pair(cardset CardSet) (CardSet, CardSet, CardSet) {
 func singleton(cardset CardSet) CardSet {
 	// helpful: http://blog.marcinchwedczuk.pl/how-to-check-if-a-number-is-a-power-of-two
 
-	// a number is a single card IFF it's a power of 2
-	if (cardset > 0) && (cardset & (cardset - 1)) == 0 {
+	// a number is a single card IFF it's a power of 2 or it's a single ace
+	if cardset == AceOfSpades || cardset == AceOfHearts || cardset == AceOfDiamonds || cardset == AceOfClubs {
+		return cardset
+	} else if (cardset > _Ace1s) && (cardset > 0) && (cardset & (cardset - 1)) == 0 {
 		return cardset
 	}
 
@@ -343,12 +340,27 @@ func singleton(cardset CardSet) CardSet {
 }
 
 // return the highest card or zero if there are no cards
-func HighCard(cardset CardSet) CardSet {
-	var test CardSet = _Ace2ofSpades
-	for test & cardset != cardset {
+func extractHighCard(cardset CardSet) CardSet {
+	var test CardSet = AceOfSpades
+
+	// NOTE: when you bitshift something that goes too far right its clipped
+	// so it's ok to start with aces!
+	for (test & cardset != test) && test > _Ace1ofSpades {
 		test >>= 1
 	}
-	return test
+
+	if test > _Ace1ofSpades {
+		return test
+	} else {
+		return 0
+	}
+}
+
+// no need to test this, look how simple it is
+// I've tested it manually
+// use it to debug
+func bitvectorString(cardset CardSet) string {
+	return fmt.Sprintf("% 064b", cardset)
 }
 
 // return a string of <number><suit> for example Ace of Hearts -> AH, 10 of Clubs -> 10C
