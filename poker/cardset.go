@@ -237,14 +237,14 @@ func flush(cardset CardSet) CardSet {
 }
 
 // return the highest set of cards that form the straight (if there is one) or 0
-// (note: pairs of cards of the same value WILL be returned)
+// (note: pairs of cards of the same value WILL be returned - feature not bug!)
 func straight(cardset CardSet) CardSet {
 	// strategy is to keep track of one card above the highest card in the straight (highCard)
 	// and as soon as we break the straight with an insufficint count, clear the upper 
 	// section of the cardset (passed by value) so we can keep only the straight inside the output
 	// use lowCard to keep track of the next possible highCard and clear the lower bits as well
 
-	var quad CardSet = _Ace2s
+	var quad CardSet = Aces
 	// NOTE: this will NOT work after we add additional cards
 	var highCard CardSet = _Ace2ofSpades << 1
 	var lowCard CardSet = _Ace2ofClubs // same as KingOfSpades << 1
@@ -253,7 +253,20 @@ func straight(cardset CardSet) CardSet {
 	for quad > 0 {
 		if quad & cardset > 0 {
 			if count == 4 {
-				return cardset & ^(lowCard - 1)
+				if cardset & _Ace2s > 0 {
+					// deal with upper ace (need to add back in lower ace)
+					// this ONLY happens if we found a flush with ace high 
+					return (cardset & ^(lowCard - 1)) | ((cardset & _Ace2s) >> 52)
+				} else if cardset & _Ace1s > 0 && lowCard == _Ace1ofClubs {
+					// need to deal with lower Ace (deleted upper ace need to add back in) 
+					// this ONLY happens if we have ace bottom (i.e. 5 4 3 2 Ace)
+					return cardset | ((cardset & _Ace1s) << 52)
+				} else {
+					// note lowCard is at LEAST 1 (i.e. _Ace1ofClubs)
+					// but when it hits zero then the quad will hit zero
+					// note tha the quad will be on _Ace1s when this is the lower card
+					return cardset & ^(lowCard - 1)
+				}
 			}
 
 			count += 1

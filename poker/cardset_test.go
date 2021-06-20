@@ -169,119 +169,115 @@ func TestQuadsDoNotExist(t *testing.T) {
 	}
 }
 
-// // TODO
-// func TestStraightExists(t *testing.T) {
-// 	const numTests = 5
+func TestStraightExists(t *testing.T) {
+	const numTests = 5
 
-// 	var theres = [numTests]CardSet{
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 	}
+	var theres = [numTests]CardSet{
+		// top down and down up with spades
+		AceOfSpades | KingOfClubs | QueenOfDiamonds | JackOfHearts | TenOfHearts,
+		FiveOfDiamonds | FourOfClubs | ThreeOfHearts | TwoOfHearts | AceOfHearts,
+		// inefficient
+		TenOfClubs | NineOfClubs | EightOfClubs | SevenOfClubs | SixOfClubs | FiveOfDiamonds,
+		QueenOfHearts | JackOfDiamonds | JackOfSpades | TenOfDiamonds | NineOfDiamonds | EightOfClubs,
+		AceOfSpades | TenOfSpades | NineOfSpades | SevenOfSpades | SixOfSpades | EightOfClubs,
+	}
 
-// 	var expectedOutputs = [numTests]CardSet{
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 	}
+	var expectedOutputs = [numTests]CardSet{
+		AceOfSpades | KingOfClubs | QueenOfDiamonds | JackOfHearts | TenOfHearts,
+		FiveOfDiamonds | FourOfClubs | ThreeOfHearts | TwoOfHearts | AceOfHearts,
+		TenOfClubs | NineOfClubs | EightOfClubs | SevenOfClubs | SixOfClubs,
+		// NOTE: pairs WILL be returned, which should be OK, since we only care about the highest card
+		QueenOfHearts | JackOfDiamonds | JackOfSpades | TenOfDiamonds | NineOfDiamonds | EightOfClubs,
+		TenOfSpades | NineOfSpades | SevenOfSpades | SixOfSpades | EightOfClubs,
+	}
 
-// 	for i := 0; i < numTests; i++ {
-// 		var expectedOutput CardSet = expectedOutputs[i]
-// 		var output CardSet = straight(theres[i])
+	for i := 0; i < numTests; i++ {
+		var expectedOutput CardSet = expectedOutputs[i]
+		var output CardSet = straight(theres[i])
 
-// 		if output != expectedOutput {
-// 			t.Errorf(errMsg(output, expectedOutput))
-// 		}
-// 	}
+		if output != expectedOutput {
+			fmt.Println(output, expectedOutput)
+			t.Errorf(errMsg(output, expectedOutput))
+		}
+	}
+}
 
-// 	t.Errorf("Unimplemented!")
-// }
+func TestStaightDoesNotExist(t *testing.T) {
+	const numTests = 5
 
-// // TODO
-// func TestStaightDoesNotExist(t *testing.T) {
-// 	const numTests = 5
+	var notTheres = [numTests]CardSet{
+		// off by one
+		AceOfSpades | KingOfClubs | QueenOfSpades | JackOfDiamonds | NineOfDiamonds,
+		FiveOfClubs | FourOfClubs | ThreeOfClubs | TwoOfDiamonds | TenOfHearts,
+		FourOfClubs | AceOfClubs | TwoOfHearts | ThreeOfHearts,
+		// totally off
+		JackOfClubs | JackOfDiamonds | JackOfHearts | TenOfClubs | NineOfHearts | EightOfSpades,
+		NoCards,
+	}
 
-// 	var notTheres = [numTests]CardSet{
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 	}
+	var expectedOutput CardSet = 0
 
-// 	var expectedOutput CardSet = 0
+	for i := 0; i < numTests; i++ {
+		var output CardSet = straight(notTheres[i])
 
-// 	for i := 0; i < numTests; i++ {
-// 		var output CardSet = straight(notTheres[i])
+		if output != expectedOutput {
+			t.Errorf(errMsg(output, expectedOutput))
+		}
+	}
+}
 
-// 		if output != expectedOutput {
-// 			t.Errorf(errMsg(output, expectedOutput))
-// 		}
-// 	}
+func TestStraightFlushExists(t *testing.T) {
+	const numTests = 3
 
-// 	t.Errorf("Unimplemented!")
-// }
+	var theres = [numTests]CardSet{
+		// excess
+		Spades,
+		// exact
+		(Tens & ^ TenOfClubs) | NineOfDiamonds | EightOfDiamonds | SevenOfDiamonds | SixOfDiamonds,
+		FiveOfHearts | FourOfHearts | ThreeOfHearts | TwoOfHearts | AceOfHearts,
+	}
 
-// // TODO
-// func TestStraightFlushExists(t *testing.T) {
-// 	const numTests = 5
+	var expectedOutputs = [numTests]CardSet{
+		AceOfSpades | KingOfSpades | QueenOfSpades | JackOfSpades | TenOfSpades,
+		TenOfDiamonds | NineOfDiamonds | EightOfDiamonds | SevenOfDiamonds | SixOfDiamonds,
+		FiveOfHearts | FourOfHearts | ThreeOfHearts | TwoOfHearts | AceOfHearts,
+	}
 
-// 	var theres = [numTests]CardSet{
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 	}
+	for i := 0; i < numTests; i++ {
+		var expectedOutput CardSet = expectedOutputs[i]
+		var output CardSet = straightFlush(theres[i])
 
-// 	var expectedOutputs = [numTests]CardSet{
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 	}
+		if output != expectedOutput {
+			t.Errorf(errMsg(output, expectedOutput))
+		}
+	}
+}
 
-// 	for i := 0; i < numTests; i++ {
-// 		var expectedOutput CardSet = expectedOutputs[i]
-// 		var output CardSet = straightFlush(theres[i])
+func TestStaightFlushDoesNotExist(t *testing.T) {
+	const numTests = 5
 
-// 		if output != expectedOutput {
-// 			t.Errorf(errMsg(output, expectedOutput))
-// 		}
-// 	}
+	var notTheres = [numTests]CardSet{
+		// straight and flush but not straight flush
+		AceOfSpades | KingOfSpades | QueenOfClubs | JackOfSpades | TenOfSpades | NineOfSpades,
+		// straight but not flush
+		SixOfClubs | FiveOfHearts | FourOfHearts | ThreeOfDiamonds | TwoOfSpades | AceOfSpades,
+		FiveOfClubs | AceOfDiamonds | FourOfClubs | ThreeOfClubs | TwoOfClubs | JackOfDiamonds,
+		// flush but not straight
+		Diamonds & ^TenOfDiamonds & ^FiveOfDiamonds,
+		// nothing
+		NoCards,
+	}
 
-// 	t.Errorf("Unimplemented!")
-// }
+	var expectedOutput CardSet = 0
 
-// // TODO
-// func TestStaightFlushDoesNotExist(t *testing.T) {
-// 	const numTests = 5
+	for i := 0; i < numTests; i++ {
+		var output CardSet = straightFlush(notTheres[i])
 
-// 	var notTheres = [numTests]CardSet{
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 	}
-
-// 	var expectedOutput CardSet = 0
-
-// 	for i := 0; i < numTests; i++ {
-// 		var output CardSet = straightFlush(notTheres[i])
-
-// 		if output != expectedOutput {
-// 			t.Errorf(errMsg(output, expectedOutput))
-// 		}
-// 	}
-
-// 	t.Errorf("Unimplemented!")
-// }
+		if output != expectedOutput {
+			t.Errorf(errMsg(output, expectedOutput))
+		}
+	}
+}
 
 func TestFlushExists(t *testing.T) {
 	// NOTE: not necessarily 5 cards, could be more
