@@ -283,119 +283,114 @@ func TestQuadsDoNotExist(t *testing.T) {
 // 	t.Errorf("Unimplemented!")
 // }
 
-// // TODO
-// func TestFlushExists(t *testing.T) {
-// 	const numTests = 5
+func TestFlushExists(t *testing.T) {
+	// NOTE: not necessarily 5 cards, could be more
+	const numTests = 4
 
-// 	var theres = [numTests]CardSet{
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 	}
+	var theres = [numTests]CardSet{
+		// with aces
+		AceOfHearts | JackOfHearts | FiveOfHearts | FourOfHearts | TwoOfHearts,
+		NineOfClubs | ThreeOfClubs | FourOfClubs | FiveOfClubs | JackOfClubs | SevenOfHearts | AceOfDiamonds,
+		// without aces
+		Diamonds & ^Aces,
+		QueenOfDiamonds | KingOfDiamonds | SixOfDiamonds | TenOfDiamonds | TwoOfDiamonds | TwoOfClubs,
+	}
 
-// 	var expectedOutputs = [numTests]CardSet{
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 	}
+	var expectedOutputs = [numTests]CardSet{
+		AceOfHearts | JackOfHearts | FiveOfHearts | FourOfHearts | TwoOfHearts,
+		NineOfClubs | ThreeOfClubs | FourOfClubs | FiveOfClubs | JackOfClubs,
+		Diamonds & ^Aces,
+		QueenOfDiamonds | KingOfDiamonds | SixOfDiamonds | TenOfDiamonds | TwoOfDiamonds,
+	}
 
-// 	for i := 0; i < numTests; i++ {
-// 		var expectedOutput CardSet = expectedOutputs[i]
-// 		var output CardSet = flush(theres[i])
+	for i := 0; i < numTests; i++ {
+		var expectedOutput CardSet = expectedOutputs[i]
+		var output CardSet = flush(theres[i])
 
-// 		if output != expectedOutput {
-// 			t.Errorf(errMsg(output, expectedOutput))
-// 		}
-// 	}
+		if output != expectedOutput {
+			t.Errorf(errMsg(output, expectedOutput))
+		}
+	}
+}
 
-// 	t.Errorf("Unimplemented!")
-// }
+func TestFlushDoesNotExist(t *testing.T) {
+	const numTests = 2
 
-// // TODO
-// func TestFlushDoesNotExist(t *testing.T) {
-// 	const numTests = 5
+	var notTheres = [numTests]CardSet{
+		// almost a flush (4)
+		// good also because tests with aces (which is an important case)
+		AceOfHearts | KingOfHearts | TenOfHearts | NineOfHearts | ThreeOfDiamonds | TwoOfClubs,
+		// not almost a flush 3 or under
+		QueenOfSpades | QueenOfHearts | QueenOfClubs,
+	}
 
-// 	var notTheres = [numTests]CardSet{
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 	}
+	var expectedOutput CardSet = 0
 
-// 	var expectedOutput CardSet = 0
+	for i := 0; i < numTests; i++ {
+		var output CardSet = flush(notTheres[i])
 
-// 	for i := 0; i < numTests; i++ {
-// 		var output CardSet = flush(notTheres[i])
+		if output != expectedOutput {
+			t.Errorf(errMsg(output, expectedOutput))
+		}
+	}
+}
 
-// 		if output != expectedOutput {
-// 			t.Errorf(errMsg(output, expectedOutput))
-// 		}
-// 	}
+func TestFullHouseExists(t *testing.T) {
+	const numTests = 4
 
-// 	t.Errorf("Unimplemented!")
-// }
+	var theres = [numTests]CardSet{
+		// exact
+		AceOfSpades | AceOfHearts | AceOfDiamonds | TenOfClubs | TenOfDiamonds,
+		FourOfClubs | FourOfDiamonds | FourOfHearts | FiveOfClubs | FiveOfDiamonds | SixOfSpades,
+		// two trips
+		(Sevens & ^SevenOfHearts) | (Kings & ^KingOfSpades),
+		(Aces & ^AceOfSpades) | (Jacks & ^JackOfDiamonds) | SixOfHearts,
+	}
 
-// // TODO
-// func TestFullHouseExists(t *testing.T) {
-// 	const numTests = 5
+	var expectedOutputs = [numTests]CardSet{
+		AceOfSpades | AceOfHearts | AceOfDiamonds | TenOfClubs | TenOfDiamonds,
+		FourOfClubs | FourOfDiamonds | FourOfHearts | FiveOfClubs | FiveOfDiamonds,
+		(Sevens & ^SevenOfHearts) | (Kings & ^KingOfSpades),
+		(Aces & ^AceOfSpades) | (Jacks & ^JackOfDiamonds),
+	}
 
-// 	var theres = [numTests]CardSet{
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 	}
+	for i := 0; i < numTests; i++ {
+		var expectedOutput CardSet = expectedOutputs[i]
+		var output CardSet = fullHouse(theres[i])
 
-// 	var expectedOutputs = [numTests]CardSet{
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 	}
+		if output != expectedOutput {
+			t.Errorf(errMsg(output, expectedOutput))
+		}
+	}
+}
 
-// 	for i := 0; i < numTests; i++ {
-// 		var expectedOutput CardSet = expectedOutputs[i]
-// 		var output CardSet = fullHouse(theres[i])
+func TestFullHouseDoesNotExist(t *testing.T) {
 
-// 		if output != expectedOutput {
-// 			t.Errorf(errMsg(output, expectedOutput))
-// 		}
-// 	}
+	const numTests = 6
 
-// 	t.Errorf("FULL HOUSE NOT IMPLEMENTED!")
-// }
+	var notTheres = [numTests]CardSet{
+		// test with triple
+		AceOfSpades | AceOfClubs | AceOfHearts,
+		TenOfHearts | TenOfSpades | TenOfClubs | TwoOfHearts | SevenOfDiamonds,
+		// test with pair
+		AceOfDiamonds | AceOfSpades,
+		KingOfDiamonds | KingOfHearts | ThreeOfDiamonds | ThreeOfHearts | TwoOfDiamonds | TwoOfClubs,
+		// test with nothing
+		NoCards,
+		// test with quad
+		Fours,
+	}
 
-// // TODO
-// func TestFullHouseDoesNotExist(t *testing.T) {
-// 	t.Errorf("FULL HOUSE NOT IMPLEMENTED!")
+	var expectedOutput CardSet = 0
 
-// 	const numTests = 5
+	for i := 0; i < numTests; i++ {
+		var output CardSet = fullHouse(notTheres[i])
 
-// 	var notTheres = [numTests]CardSet{
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 		0,
-// 	}
-
-// 	var expectedOutput CardSet = 0
-
-// 	for i := 0; i < numTests; i++ {
-// 		var output CardSet = fullHouse(notTheres[i])
-
-// 		if output != expectedOutput {
-// 			t.Errorf(errMsg(output, expectedOutput))
-// 		}
-// 	}
-// }
+		if output != expectedOutput {
+			t.Errorf(errMsg(output, expectedOutput))
+		}
+	}
+}
 
 // // pairs and trips are slightly different since we expect to find many, so we will use
 // // function literals instead to test them

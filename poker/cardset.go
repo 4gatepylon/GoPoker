@@ -200,13 +200,33 @@ func straightFlush(cardset CardSet) CardSet {
 	return straightSet
 }
 
+// return the highest full house
+// NOTE that pair and triplet are already exclusive of eachother
+// NOTE that it CANNOT catch a fullhouse when there is quads (due to the construction of pair and trips)
+// that's OK because the quads beat the fullhouse
+func fullHouse(cardset CardSet) CardSet {
+	p1, _, _ := pair(cardset)
+	t1, t2 := triplet(cardset)
+
+	if p1 > 0 && t1 > 0 {
+		return p1 | t1
+	} else if t1 > 0 && t2 > 0 {
+		return t1 | t2 // not perfectly efficient but ok for now
+	} else {
+		return 0
+	}
+}
+
 // return the highest set of cards that form the flush if there is one or 0
 func flush(cardset CardSet) CardSet {
 	var flush CardSet = Spades
 	var mask CardSet = flush & cardset
 	for flush > Clubs - 1 {
 		// this is really hacky and pretty cool, check it out
-		if bits.OnesCount64(uint64(mask)) >= 5 {
+		bc := bits.OnesCount64(uint64(mask))
+		// note that if you have an ace you get 1 more bit count so we should check if there is an ace
+		// and then do 1 more if there is potentially an ace
+		if (Aces & mask == 0 && bc >= 5) || bc >= 6 {
 			return mask
 		}
 
