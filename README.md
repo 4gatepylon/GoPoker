@@ -24,6 +24,9 @@ Tbd. I'll probably change this to use bazel and right a simple skylark rule to r
 ## Testing
 Every file more or less defines a logical grouping of things. For example: a game. Each logical grouping of things is unit tested. If the tests are not pretty or whatever, bad luck bears. I don't care. These tests should have decent coverage of black-box codepaths (that is to say, the input output pairs) such that both sides are covered, even if their product isn't necessarily covered (because ain't nobody got time for that).
 
+Running specific tests:
+- https://stackoverflow.com/questions/48465080/how-do-i-run-specific-golang-test-using-go-test-run
+
 # Why
 ## Did I do this?
 To learn golang, gRPC, and Bazel (and here I am not using gRPC nor Bazel: "Sad!" -ex president of the united states). Also to not atrophy.
