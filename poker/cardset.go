@@ -1,8 +1,10 @@
 package poker
 
-import "math/bits"
-import "strings"
-import "fmt"
+import (
+	"math/bits"
+	"strings"
+	"fmt"
+)
 
 // 13 * 4 = 52 unique cards in poker
 // any set of cards can be fit in a >= 52 bit vector

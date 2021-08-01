@@ -1,8 +1,10 @@
 package poker
 
-import "testing"
-import "fmt"
-import "strings"
+import (
+	"testing"
+	"fmt"
+	"strings"
+)
 
 // yes I know there is a lot of code copying, sorry m88
 

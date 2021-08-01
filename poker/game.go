@@ -1,19 +1,19 @@
 package poker
 
-import "errors"
-import "math/rand"
-
 ////////// CONSTS //////////
 
-const MAX_PLAYERS := 6
-const MAX_ROOMS := 4
-const ROOMNAME_LENGTH := 5
+const MAX_PLAYERS = 6
+const MAX_ROOMS = 4
+const ROOMNAME_LENGTH = 5
 
-const CommandID (
+type CommandID byte
+type Card CardSet
+
+const (
 	// once inside a room you can always check, fold or bet
 	// but this will only be accepted if it's your turn and otherwise
 	// the server should send back an informational error message
-	fold = iota
+	fold CommandID = iota
 	check
 	bet
 
@@ -42,11 +42,7 @@ const CommandID (
 // and is an admin if they created the room they are in (admins can
 // issue new chips arbitrarily, but it is impossible to take chips away)
 // (names must be unique)
-type Player interface {
-	// TODO
-}
-
-type PlayerImp struct {
+type Player struct {
 	name string
 	hand [2]*Card
 	chips int
@@ -56,11 +52,7 @@ type PlayerImp struct {
 
 // A game is a state-machine-like interface that represents a game that you can play.
 // It exposes various endpoints to let you modify it in different ways and is thread-safe.
-type Game interface {
-	// TODO
-}
-
-type GameImp struct {
+type Game struct {
 	id string
 	players [MAX_PLAYERS]*Player
 	middle [5]*Card
@@ -76,13 +68,3 @@ type Command struct {
 	addr string
 	metadata string
 }
-
-// func genRandName() string, error {
-// 	name := [ROOMNAME_LENGTH]bytes{}
-// 	minByte := 'a'
-// 	maxByte := 'z'
-// 	for i := 0; i < ROOMNAME_LENGTH; i++ {
-// 		name[i] = 1
-// 	}
-// 	return string(name)
-// }
