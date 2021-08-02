@@ -1,3 +1,9 @@
 package net
 
-// declares the interfaces to be used by all clients
+import (
+	"google.golang.org/grpc"
+)
+
+func RunClient() {
+
+}
