@@ -8,6 +8,22 @@ import (
 type Card CardSet
 
 const (
+	BROUND_PREFLOP uint64 = iota + 1
+	BROUND_FLOP
+	BROUND_TURN
+	BROUND_RIVER
+)
+
+const (
+	MTYPE_CHECK uint64 = 1 << iota // Takes presedence over other moves
+	MTYPE_FOLD                     // Second highest precedence
+	MTYPE_CALL                     // Third highest precedence 
+	MTYPE_CALL_ANY                 // Call anything (willing to go all in)
+	MTYPE_BET                      // Bet some amount of money; you can check AND bet
+	MTYPE_SITOUT_NEXT_ROUND        // Orthogonal from the rest: simply don't lay the next round (toggle pause)
+)
+
+const (
 	PSTATUS_ADMIN   byte = 1 << iota // Admins control the chips and playerbase
 	PSTATUS_PLAYING                  // Players who aren't playing can't bet (etc)
 )
@@ -30,6 +46,47 @@ const (
 	DEFAULT_STATUS      = 0
 )
 
+
+// TODO finalize this interface
+// TODO thread safety, rework current functions
+// TODO finish implementing new functions
+// TODO unit-testing (at least in a single-threaded environment)
+
+type GameLike interface {
+	// Player control (these will be used by admins/mods)
+	AddPlayer()        // Add a player to the game (mod required)
+	KickPlayer()       // Remove a player from the game (mod required)
+	ModPlayer()        // Turn a player into a mod (admin) (mod required)
+	
+
+	// Player control plane (this will be used by software)
+	Players() // Who is playing the game: return in order with chips
+	Stakes()  // What are the stakes? (bb)
+
+	// Game status control plane (this will be used by admins/mods)
+	ChangeGameName()
+	Play()           // Toggle pause OFF
+	Pause()          // Toggle pause ON
+	MakePrivate()    // Toggle private ON (join code will be necessary)
+	MakePublic()     // Toggle private OFF (join code will be ignored)
+	Private()        // Read whether this game is private or not
+
+	// Game flow (this will be used by everyone
+	Move(uint64, uint64, uint64) // Used to make bets, checks, and so on
+	ChangePlayerName()           // Used to change a name: admins can change anyone's, and anyone else can change their own
+
+	// Game flow control plane (this will be used by software)
+	Increment() // Increment the betting round (preflop => flop => turn => river)
+	Resolve()   // Resolve the winners
+	NewRound()  // Start the next round
+
+	// NOTE: resolve should be able to handle different pots and all ins (incl. forced all ins)
+	// Moreover, a game has to remember player order, it has to be able to deal with betting rounds within 
+	// game rounds within the game itself, etc...
+}
+
+// Internally we store players as their own struct but player structs are not "able to do anything"
+// on their own. They are just used to keep track of cards, names, chips, etc...
 type Player struct {
 	Id   uint64  // Players have unique identifiers for the system
 	Name *string // and display names for people
@@ -148,10 +205,22 @@ func (game *Game) changeStartingChips(startingChips uint64) {
 func (game *Game) TogglePause() {
 	game.Status = (game.Status ^ GSTATUS_PLAYING)
 }
+func (game *Game) Pause() {
+	game.Status = game.Status | GSTATUS_PLAYING
+}
+func (game *Game) Play() {
+	game.Status = game.Status & ^GSTATUS_PLAYING
+}
 
 // REQUIRES ADMIN
 func (game *Game) TogglePrivate() {
 	game.Status = (game.Status ^ GSTATUS_PRIVATE)
+}
+func (game *Game) MakePrivate() {
+	game.Status = game.Status | GSTATUS_PRIVATE
+}
+func (game *Game) MakePublic() {
+	game.Status = game.Status & ^GSTATUS_PRIVATE
 }
 
 // Check whether a player can be added with a joinCode
@@ -280,9 +349,25 @@ func (game *Game) GiveChips(id interface{}, chips uint64) error {
 	return nil
 }
 
-// TODO be able to start the game
-// TODO add metadata for rounds (etc)
-// TODO be able to make moves during rounds
-// TODO thread safety
-// TODO unit-testing (at least in a single-threaded environment)
-// TODO define an interface for ease of documentation
+// Attempt to make a move with some chips; chips are ignored for checks and folds
+func (game *Game) Move(move uint64, pid uint64, chips uint64) {
+
+}
+
+// Resolve the winners from the current middle and those playing
+func (game *Game) Resolve() {
+
+}
+
+// Start a new round
+// Should only be possible in the river when there are no chips in the middle
+// and everyone has checked or called
+func (game *Game) NewRound(move uint64) {
+
+}
+
+// Increment the betting round (i.e. preflop => flop => turn => river)
+// Should only be possible after everyone in the game has bet
+func (game *Game) Increment() {
+
+}

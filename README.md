@@ -32,7 +32,7 @@ PS, In the future, as I add more protos and whatnot, it's possible that I may cr
 4. Creating a server/client protocol
 5. Creating a server/client abstraction/object for the game server
 
-Ideally draw an ascii schematic or something of the sort too if you can. Below are helpful docs/resources.
+Ideally draw an ascii schematic or something of the sort too if you can. Below are helpful docs/resources. I might also want to add backup capability and a GUI, but that's way further down the road.
 
 - Remember to test grpc as well: `https://stackoverflow.com/questions/42102496/testing-a-grpc-service`.
 - Protobuf Docs: `https://developers.google.com/protocol-buffers/docs/overview`.
