@@ -1,9 +1,9 @@
 package net
 
 import (
-	"net"
-	"log"
 	"context"
+	"log"
+	"net"
 
 	"google.golang.org/grpc"
 

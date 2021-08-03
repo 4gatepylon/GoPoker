@@ -7,7 +7,6 @@ import (
 	"github.com/4gatepylon/GoPoker/net"
 )
 
-
 func main() {
 	var runClient *bool = flag.Bool("client", true, "Decide whether to run client or server. Default is client (true).")
 

@@ -1,9 +1,9 @@
 package poker
 
 import (
-	"testing"
 	"fmt"
 	"strings"
+	"testing"
 )
 
 // yes I know there is a lot of code copying, sorry m88
@@ -21,7 +21,7 @@ func errMsg(got CardSet, expected CardSet) string {
 // so we can have quick contains checks basically
 type StringSet map[string]struct{}
 
-func strSet(elements... string) StringSet {
+func strSet(elements ...string) StringSet {
 	st := make(StringSet, 2)
 	for _, k := range elements {
 		st[k] = struct{}{}
@@ -93,13 +93,13 @@ func TestRoyalFlushDoesNotExist(t *testing.T) {
 		NoCards,
 
 		// straight no flush
-		AceOfDiamonds | KingOfDiamonds | QueenOfClubs | JackOfClubs | TenOfHearts, 
-		
+		AceOfDiamonds | KingOfDiamonds | QueenOfClubs | JackOfClubs | TenOfHearts,
+
 		// flush no straight
-		Clubs & ^AceOfClubs, 
+		Clubs & ^AceOfClubs,
 
 		//arbitrary cards
-		ThreeOfHearts | TenOfClubs | SevenOfDiamonds | EightOfSpades | AceOfSpades | AceOfDiamonds | AceOfHearts, 
+		ThreeOfHearts | TenOfClubs | SevenOfDiamonds | EightOfSpades | AceOfSpades | AceOfDiamonds | AceOfHearts,
 	}
 
 	var expectedOutput CardSet = 0
@@ -136,7 +136,7 @@ func TestQuadsExist(t *testing.T) {
 
 	for i := 0; i < numTests; i++ {
 		var expectedOutput = expectedOutputs[i]
-		
+
 		var output CardSet = fourOfAKind(quads[i])
 
 		if output != expectedOutput {
@@ -156,7 +156,7 @@ func TestQuadsDoNotExist(t *testing.T) {
 		KingOfHearts | KingOfSpades | QueenOfSpades | TenOfHearts | SixOfHearts | SixOfDiamonds | TwoOfClubs,
 		// a couple with randomness
 		Clubs,
-		// a couple with two 
+		// a couple with two
 		Queens & Jacks,
 		NoCards,
 	}
@@ -235,7 +235,7 @@ func TestStraightFlushExists(t *testing.T) {
 		// excess
 		Spades,
 		// exact
-		(Tens & ^ TenOfClubs) | NineOfDiamonds | EightOfDiamonds | SevenOfDiamonds | SixOfDiamonds,
+		(Tens & ^TenOfClubs) | NineOfDiamonds | EightOfDiamonds | SevenOfDiamonds | SixOfDiamonds,
 		FiveOfHearts | FourOfHearts | ThreeOfHearts | TwoOfHearts | AceOfHearts,
 	}
 
@@ -413,40 +413,39 @@ func TestTrips(t *testing.T) {
 		NoCards,
 	}
 
-	var isExpecteds = []func(trip1, trip2 CardSet) (bool, string) {
+	var isExpecteds = []func(trip1, trip2 CardSet) (bool, string){
 		// "with 1 trip"
 		func(t1, t2 CardSet) (bool, string) {
-			return (t1 == NineOfClubs | NineOfDiamonds | NineOfSpades) && t2 == 0, "9C 9D 9S, "
+			return (t1 == NineOfClubs|NineOfDiamonds|NineOfSpades) && t2 == 0, "9C 9D 9S, "
 		},
 		func(t1, t2 CardSet) (bool, string) {
-			return (t1 == FourOfHearts | FourOfDiamonds | FourOfClubs) && t2 == 0, "4C 4D 4H, "
+			return (t1 == FourOfHearts|FourOfDiamonds|FourOfClubs) && t2 == 0, "4C 4D 4H, "
 		},
 		// "with 2 trips"
 		func(t1, t2 CardSet) (bool, string) {
-			return (
-				t1 == JackOfClubs | JackOfDiamonds | JackOfHearts && 
-				t2 == TenOfSpades | TenOfDiamonds | TenOfClubs), "JC JD JH, TC TD TS"
+			return (t1 == JackOfClubs|JackOfDiamonds|JackOfHearts &&
+				t2 == TenOfSpades|TenOfDiamonds|TenOfClubs), "JC JD JH, TC TD TS"
 		},
 		// "with quad (should be ignored)"
 		func(t1, t2 CardSet) (bool, string) {
-			return t1 | t2 == 0, ", , "
+			return t1|t2 == 0, ", , "
 		},
 		func(t1, t2 CardSet) (bool, string) {
-			return t1 | t2 == 0, ", , "
+			return t1|t2 == 0, ", , "
 		},
 		// "with no trips (with doubles)"
 		func(t1, t2 CardSet) (bool, string) {
-			return t1 | t2 == 0, ", , "
+			return t1|t2 == 0, ", , "
 		},
 		func(t1, t2 CardSet) (bool, string) {
-			return t1 | t2 == 0, ", , "
+			return t1|t2 == 0, ", , "
 		},
 		// "with no trips (no doubles)"
 		func(t1, t2 CardSet) (bool, string) {
-			return t1 | t2 == 0, ", , "
+			return t1|t2 == 0, ", , "
 		},
 		func(t1, t2 CardSet) (bool, string) {
-			return t1 | t2 == 0, ", , "
+			return t1|t2 == 0, ", , "
 		},
 	}
 
@@ -456,7 +455,7 @@ func TestTrips(t *testing.T) {
 		ok, message := isExpecteds[i](output1, output2)
 		if !ok {
 			var outputs string = fmt.Sprintf(
-				"{ %s, %s }", 
+				"{ %s, %s }",
 				CardSetToString(output1),
 				CardSetToString(output2),
 			)
@@ -491,64 +490,61 @@ func TestPairs(t *testing.T) {
 		SixOfDiamonds | SevenOfSpades | EightOfSpades | NineOfClubs,
 	}
 
-	var isExpecteds = []func(pair1, pair2, pair3 CardSet) (bool, string) {
+	var isExpecteds = []func(pair1, pair2, pair3 CardSet) (bool, string){
 		// "try with 1 pair"
 		func(p1, p2, p3 CardSet) (bool, string) {
-			return (p1 == (KingOfDiamonds | KingOfHearts) && p2 | p3 == 0), "KD KH, , "
+			return (p1 == (KingOfDiamonds|KingOfHearts) && p2|p3 == 0), "KD KH, , "
 		},
 		func(p1, p2, p3 CardSet) (bool, string) {
-			return p1 == (JackOfSpades | JackOfClubs) && p2 | p3 == 0, "JS JC, , "
+			return p1 == (JackOfSpades|JackOfClubs) && p2|p3 == 0, "JS JC, , "
 		},
 		// "try with 2 pairs"
 		func(p1, p2, p3 CardSet) (bool, string) {
-			return (
-				p1 == SevenOfSpades | SevenOfHearts && 
-				p2 == SixOfSpades | SixOfDiamonds && 
+			return (p1 == SevenOfSpades|SevenOfHearts &&
+				p2 == SixOfSpades|SixOfDiamonds &&
 				p3 == 0), "7S 7H, 6S 6D, "
 		},
 		// "try with 3 pairs"
 		func(p1, p2, p3 CardSet) (bool, string) {
-			return (
-				p1 == AceOfDiamonds | AceOfClubs &&
-				p2 == KingOfHearts | KingOfClubs &&
-				p3 == ThreeOfSpades | ThreeOfHearts), "AD AC, KH KC, 3S 3H"
+			return (p1 == AceOfDiamonds|AceOfClubs &&
+				p2 == KingOfHearts|KingOfClubs &&
+				p3 == ThreeOfSpades|ThreeOfHearts), "AD AC, KH KC, 3S 3H"
 		},
 		func(p1, p2, p3 CardSet) (bool, string) {
-			return (
-				p1 == EightOfSpades | EightOfHearts &&
-				p2 == SevenOfClubs | SevenOfDiamonds &&
-				p3 == SixOfHearts | SixOfClubs), "8S 8H, 7D 7C, 6H 6C"
+			return (p1 == EightOfSpades|EightOfHearts &&
+				p2 == SevenOfClubs|SevenOfDiamonds &&
+				p3 == SixOfHearts|SixOfClubs), "8S 8H, 7D 7C, 6H 6C"
 		},
 		// "try with triplets (should be ignored)"
 		func(p1, p2, p3 CardSet) (bool, string) {
-			return p1 | p2 | p3 == 0, ", , "
+			return p1|p2|p3 == 0, ", , "
 		},
 		func(p1, p2, p3 CardSet) (bool, string) {
-			return p1 == (ThreeOfDiamonds | ThreeOfHearts) && p2 | p3 == 0, "3H 3D, , "
+			return p1 == (ThreeOfDiamonds|ThreeOfHearts) && p2|p3 == 0, "3H 3D, , "
 		},
 		// "try with quads (should be ignored)"
 		func(p1, p2, p3 CardSet) (bool, string) {
-			return p1 | p2 | p3 == 0, ", , "
+			return p1|p2|p3 == 0, ", , "
 		},
 		func(p1, p2, p3 CardSet) (bool, string) {
-			return p1 | p2 | p3 == 0, ", , "
+			return p1|p2|p3 == 0, ", , "
 		},
 		// "try with no pairs"
 		func(p1, p2, p3 CardSet) (bool, string) {
-			return p1 | p2 | p3 == 0, "" //empty string means nothing
+			return p1|p2|p3 == 0, "" //empty string means nothing
 		},
 		func(p1, p2, p3 CardSet) (bool, string) {
-			return p1 | p2 | p3 == 0, "" //ibid
+			return p1|p2|p3 == 0, "" //ibid
 		},
 	}
 
 	for i := 0; i < numTests; i++ {
 		var output1, output2, output3 CardSet = pair(inputs[i])
-		
+
 		ok, message := isExpecteds[i](output1, output2, output3)
 		if !ok {
 			var outputs string = fmt.Sprintf(
-				"%s, %s, %s", 
+				"%s, %s, %s",
 				CardSetToString(output1),
 				CardSetToString(output2),
 				CardSetToString(output3),
@@ -593,7 +589,6 @@ func TestHighCard(t *testing.T) {
 	}
 }
 
-
 // tests that the proper strings are displayed
 // the proper seperator is the space, cards are expected to be sorted
 // by numerical order (increasing) but not by suit order
@@ -616,7 +611,7 @@ func TestCardSetToString(t *testing.T) {
 		NoCards,
 	}
 
-	var validAnswers = [numTests]StringSet {
+	var validAnswers = [numTests]StringSet{
 		strSet("AS"),
 		strSet("JD"),
 		strSet("3C"),

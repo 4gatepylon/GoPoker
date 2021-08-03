@@ -1,9 +1,9 @@
 package poker
 
 import (
+	"fmt"
 	"math/bits"
 	"strings"
-	"fmt"
 )
 
 // 13 * 4 = 52 unique cards in poker
@@ -108,7 +108,7 @@ const (
 
 // used to check for straights, pairs, triplets, full houses, and four of a kind
 const (
-	_Ace1s CardSet = (_Ace1ofClubs| _Ace1ofDiamonds | _Ace1ofHearts | _Ace1ofSpades) << (4 * iota)
+	_Ace1s CardSet = (_Ace1ofClubs | _Ace1ofDiamonds | _Ace1ofHearts | _Ace1ofSpades) << (4 * iota)
 	Twos
 	Threes
 	Fours
@@ -128,10 +128,9 @@ const Aces CardSet = _Ace1s | _Ace2s
 
 // used to check for flushes
 const (
-	Clubs CardSet = (
-		AceOfClubs | TwoOfClubs | ThreeOfClubs | FourOfClubs | 
-		FiveOfClubs | SixOfClubs | SevenOfClubs | EightOfClubs | 
-		NineOfClubs | TenOfClubs | JackOfClubs | QueenOfClubs | 
+	Clubs CardSet = (AceOfClubs | TwoOfClubs | ThreeOfClubs | FourOfClubs |
+		FiveOfClubs | SixOfClubs | SevenOfClubs | EightOfClubs |
+		NineOfClubs | TenOfClubs | JackOfClubs | QueenOfClubs |
 		KingOfClubs) << iota
 	Diamonds
 	Hearts
@@ -158,7 +157,7 @@ const NoCards = 0
 func royalFlush(cardset CardSet) CardSet {
 	var royalFlush CardSet = SpadesRoyalFlush
 	var mask CardSet = royalFlush & cardset
-	for royalFlush > ClubsRoyalFlush - 1 {
+	for royalFlush > ClubsRoyalFlush-1 {
 		if mask == royalFlush {
 			return mask
 		}
@@ -173,13 +172,13 @@ func royalFlush(cardset CardSet) CardSet {
 // otherwise return the highest four of a kind they hold
 // as a card set (note, it's only possible to have one four of a kind)
 func fourOfAKind(cardset CardSet) CardSet {
-	if cardset & Aces == Aces {
+	if cardset&Aces == Aces {
 		return Aces
 	}
 
 	var quad CardSet = Kings
 	for quad > _Ace1s {
-		if quad & cardset == quad {
+		if quad&cardset == quad {
 			return quad
 		}
 
@@ -223,12 +222,12 @@ func fullHouse(cardset CardSet) CardSet {
 func flush(cardset CardSet) CardSet {
 	var flush CardSet = Spades
 	var mask CardSet = flush & cardset
-	for flush > Clubs - 1 {
+	for flush > Clubs-1 {
 		// this is really hacky and pretty cool, check it out
 		bc := bits.OnesCount64(uint64(mask))
 		// note that if you have an ace you get 1 more bit count so we should check if there is an ace
 		// and then do 1 more if there is potentially an ace
-		if (Aces & mask == 0 && bc >= 5) || bc >= 6 {
+		if (Aces&mask == 0 && bc >= 5) || bc >= 6 {
 			return mask
 		}
 
@@ -242,7 +241,7 @@ func flush(cardset CardSet) CardSet {
 // (note: pairs of cards of the same value WILL be returned - feature not bug!)
 func straight(cardset CardSet) CardSet {
 	// strategy is to keep track of one card above the highest card in the straight (highCard)
-	// and as soon as we break the straight with an insufficint count, clear the upper 
+	// and as soon as we break the straight with an insufficint count, clear the upper
 	// section of the cardset (passed by value) so we can keep only the straight inside the output
 	// use lowCard to keep track of the next possible highCard and clear the lower bits as well
 
@@ -253,14 +252,14 @@ func straight(cardset CardSet) CardSet {
 	var count uint32 = 0
 
 	for quad > 0 {
-		if quad & cardset > 0 {
+		if quad&cardset > 0 {
 			if count == 4 {
-				if cardset & _Ace2s > 0 {
+				if cardset&_Ace2s > 0 {
 					// deal with upper ace (need to add back in lower ace)
-					// this ONLY happens if we found a flush with ace high 
+					// this ONLY happens if we found a flush with ace high
 					return (cardset & ^(lowCard - 1)) | ((cardset & _Ace2s) >> 52)
-				} else if cardset & _Ace1s > 0 && lowCard == _Ace1ofClubs {
-					// need to deal with lower Ace (deleted upper ace need to add back in) 
+				} else if cardset&_Ace1s > 0 && lowCard == _Ace1ofClubs {
+					// need to deal with lower Ace (deleted upper ace need to add back in)
 					// this ONLY happens if we have ace bottom (i.e. 5 4 3 2 Ace)
 					return cardset | ((cardset & _Ace1s) << 52)
 				} else {
@@ -286,11 +285,10 @@ func straight(cardset CardSet) CardSet {
 }
 
 func maskIsTriplet(mask CardSet, quad CardSet, highestCard CardSet) bool {
-	return (
-		mask == quad & ^highestCard || 
-		mask == quad & ^(highestCard >> 1) ||
-		mask == quad & ^(highestCard >> 2) ||
-		mask == quad & ^(highestCard >> 3))
+	return (mask == quad & ^highestCard ||
+		mask == quad & ^(highestCard>>1) ||
+		mask == quad & ^(highestCard>>2) ||
+		mask == quad & ^(highestCard>>3))
 }
 
 // return 0, 0 if they have no triplets
@@ -338,7 +336,7 @@ func pair(cardset CardSet) (CardSet, CardSet, CardSet) {
 
 	for quad > _Ace1s {
 		var mask CardSet = quad & cardset
-		
+
 		// this is a pair if it's not a quad, triplet, or singleton
 		// could also use bitcount (and don't forget to check it's nonzero, LOL)
 		if (mask > 0) && (mask != quad) && !maskIsTriplet(mask, quad, highestCard) && singleton(mask) == 0 {
@@ -367,7 +365,7 @@ func singleton(cardset CardSet) CardSet {
 	// a number is a single card IFF it's a power of 2 or it's a single ace
 	if cardset == AceOfSpades || cardset == AceOfHearts || cardset == AceOfDiamonds || cardset == AceOfClubs {
 		return cardset
-	} else if (cardset > _Ace1s) && (cardset > 0) && (cardset & (cardset - 1)) == 0 {
+	} else if (cardset > _Ace1s) && (cardset > 0) && (cardset&(cardset-1)) == 0 {
 		return cardset
 	}
 
@@ -380,7 +378,7 @@ func extractHighCard(cardset CardSet) CardSet {
 
 	// NOTE: when you bitshift something that goes too far right its clipped
 	// so it's ok to start with aces!
-	for (test & cardset != test) && test > _Ace1ofSpades {
+	for (test&cardset != test) && test > _Ace1ofSpades {
 		test >>= 1
 	}
 
@@ -407,7 +405,7 @@ func CardSetToString(cardset CardSet) string {
 
 	// this is the number of shifts from 0
 	// i.e. 1 = 1 << 0, 2 = 1 << 1, 4 = 1 << 2, 8 = 1 << 3, so 0, 1, 2, 3, ...
-	var shift byte = 4 
+	var shift byte = 4
 
 	// Recall there are four extra aces...
 	// this will basically add an offset to the shift index / 4 (to get a step function
@@ -439,15 +437,15 @@ func CardSetToString(cardset CardSet) string {
 	var suitLookup = [4]byte{67, 68, 72, 83}
 
 	var b strings.Builder
-	for i := 0; i <6; i++ {
+	for i := 0; i < 6; i++ {
 		for shift < shiftBounds[i] {
-			if card & cardset > 0 {
-				b.WriteByte(shift / 4 + asciiOffsets[i])
+			if card&cardset > 0 {
+				b.WriteByte(shift/4 + asciiOffsets[i])
 				b.WriteByte(suitLookup[shift%4])
 				b.WriteByte(' ')
 			}
 
-			shift ++
+			shift++
 			card <<= 1
 		}
 	}

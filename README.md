@@ -1,5 +1,4 @@
-# Construction
-## Building
+# Building
 Make sure you have Golang 1.16 installed.
 
 Run `go get google.golang.org/grpc`. We are using `v1.39.0` and protoc `v3.17.3`. I installed with homebrew on my mac.
@@ -23,5 +22,19 @@ protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=p
 
 PS, In the future, as I add more protos and whatnot, it's possible that I may create a builder of some kind. It would be a good experience. I was originally using Bazel, but it was a massive pain in the butt and I never got it to run with grpc.
 
-## Running
+# Running
 `cd main` after building and then with a `tmux` or pair of tabs/windows, run `./main -client=0` for the server and `./main` for your clients.
+
+# What's left
+1. Finishing up the game itself (check todos inside `game.go`; also, make sure to test `utils/naming.go` as well)
+2. Creating a CLI interface for clients
+3. Creating a flags CLI interface for server launch
+4. Creating a server/client protocol
+5. Creating a server/client abstraction/object for the game server
+
+Ideally draw an ascii schematic or something of the sort too if you can. Below are helpful docs/resources.
+
+- Remember to test grpc as well: `https://stackoverflow.com/questions/42102496/testing-a-grpc-service`.
+- Protobuf Docs: `https://developers.google.com/protocol-buffers/docs/overview`.
+- Example Protobuf + GRPC: `https://www.youtube.com/watch?v=SBPjEbZcgf8`.
+- GRPC API In go: `https://grpc.io/docs/languages/go/`.
