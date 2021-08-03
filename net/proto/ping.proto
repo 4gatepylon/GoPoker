@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+option go_package = "github.com/4gatepylon/GoPoker/net/proto";
+
+package proto;
+
+service Pinger {
+  rpc Ping(PingRequest) returns (PingReply) {}
+}
+message PingRequest {}
+message PingReply {
+  string message = 1;
+}

@@ -1,3 +1,10 @@
+# mac is annoying
 .DS_STORE
-bazel**
-bazel-*/
+
+# we ignore all protobuf generated files, follow the instructions in `README.md` to get protobuf working
+**/*.pb.go
+
+# `main` is our designated executables folder, we will ignore everything except our go entrypoint
+main/*
+main/**
+!main/main.go

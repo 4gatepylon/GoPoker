@@ -7,8 +7,10 @@ import (
 	"github.com/4gatepylon/GoPoker/net"
 )
 
-var runClient *bool = flag.Bool("run-client", true, "Decide whether to run client or server. Default is client (true).")
+
 func main() {
+	var runClient *bool = flag.Bool("client", true, "Decide whether to run client or server. Default is client (true).")
+
 	flag.Parse()
 	if runClient == nil {
 		log.Fatalf("Must pick client or server\n")
@@ -16,9 +18,9 @@ func main() {
 	}
 	if *runClient {
 		log.Printf("Running client\n")
-		net.RunServer()
+		net.RunClient()
 		return
 	}
-	net.RunClient()
+	net.RunServer()
 	log.Printf("Running server\n")
 }
