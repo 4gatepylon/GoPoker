@@ -7,4 +7,4 @@
 # `main` is our designated executables folder, we will ignore everything except our go entrypoint
 main/*
 main/**
-!main/main.go
+!main/*.go
