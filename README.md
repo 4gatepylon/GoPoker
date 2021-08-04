@@ -26,15 +26,21 @@ PS, In the future, as I add more protos and whatnot, it's possible that I may cr
 `cd main` after building and then with a `tmux` or pair of tabs/windows, run `./main -client=0` for the server and `./main` for your clients.
 
 # What's left
-1. Finishing up the game itself (check todos inside `game.go`; also, make sure to test `utils/naming.go` as well)
-2. Creating a CLI interface for clients
-3. Creating a flags CLI interface for server launch
-4. Creating a server/client protocol
-5. Creating a server/client abstraction/object for the game server
+Right now my goal is just to get a working MVP. I'm defining interfaces where I think it will be reasonable to upgrade things in the future (for you or for me). For example: the game (because it is meaningfully optimizeable, backupable, etc...), some elements in the networking stack (i.e. you may prefer to use REST + websockets or some other technology; this is important, because it will allow for easier cross-platform gaming like browser-to-client).
 
-Ideally draw an ascii schematic or something of the sort too if you can. Below are helpful docs/resources. I might also want to add backup capability and a GUI, but that's way further down the road.
+1. Finishing up the game + testing itself (check todos inside `game.go`; also, make sure to test `utils/naming.go` as well)
+2. Creating a CLI interface for clients that has a NetClient of some kind (implement ClientLike and UILike)
+3. Creating a flags CLI interface for server launch that hs a NetServer of some kind (implement ServerLike)
+4. Creating a server/client protocol with GRPC on the wire; implement NetServer and NetClient; finally, integrate
 
+# Resources I Used
 - Remember to test grpc as well: `https://stackoverflow.com/questions/42102496/testing-a-grpc-service`.
 - Protobuf Docs: `https://developers.google.com/protocol-buffers/docs/overview`.
 - Example Protobuf + GRPC: `https://www.youtube.com/watch?v=SBPjEbZcgf8`.
 - GRPC API In go: `https://grpc.io/docs/languages/go/`.
+
+# Bonus
+- Create a GUI
+- Add backups to server in case of process failure, potentially in case of server failure too
+- Add forking potentially and other optimization/parallelism for high availability
+- Document well, consider some ascii pictures
