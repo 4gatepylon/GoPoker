@@ -4,12 +4,6 @@ import (
 	"github.com/4gatepylon/GoPoker/poker"
 )
 
-// Requests are a shared type between client and server.
-// clients have NetClients which send requests over the network
-// in the format specified by Request here. Servers have NetServers
-// that similarly recieve Request requests and feed them to the
-// parent server to handle.
-
 // To allow request/response batching (lowers network utilization)
 // bitshifted integers are used as the request/response type.
 // Request/response data is formatted to be able to house any request/response
@@ -132,60 +126,34 @@ type NetResponse struct {
 	Pots    []uint64
 }
 
-type NetServerLike interface {
-	// External Control
-	Serve(*string) (chan *NetRequest, chan *NetResponse, error) // (local addr) => (reqs, resps, error)
-	Close() error                                               // () => (error)
+// Translators are effectively a lightweight interface used by internals of servers and clients to translate
+// UIRequest/Response => NetRequest/Response => Protocol buffer defined messages sendable by GRPC. We have an
+// interface in case we wish to swap out GRPC with REST or some other framework.
 
-	// Internallly it should be listening to requests from the network and then
-	// parsing them and converting them into *Request objects to send on the channel.
-	// At the same time it should recieve response objects on the other channel to
-	// format into network types and send on the wire.
+// NetRequestTranslators turn net requests into proto. NetResponseTranslators turn proto into NetResponse.
+// UIRequestTranslators turn UIRequests into NetRequests. UIResponseTranslators turn NetResponses into UIResponses.
+// It is possible in any of these cases to produce zero requests/responses from one or more messages (i.e. drop).
+// It is also possible to accumulate requests/responses and then create joint messages to send on the wire (or channel).
+
+// Internally, consume should be updating some form of state. Produce should be flushing it. That is the same
+// for all of these translators.
+
+type NetRequestTranslator interface {
+	Consume(*NetRequest) (uint64, error)    // (incoming net req) => (how many consumed, error)
+	Produce([]*interface{}) (uint64, error) // (outgoing proto) => (how many produced, error)
 }
 
-type ServerLike interface {
-	Init(chan *NetRequest, chan *NetResponse) error // (reqs, resps) => (error)
-	Start() error                                   // () => (error)
-	Stop() error                                    // () => (error)
-	Teardown() error                                // () => (error)
-
-	// Internally Init should create any necessary metadata and files (etc)
-	// while start should spin up the server, stop should stop the server (without
-	// deleting any information on disk if it exists) and teardown should tear the server
-	// down cleaning up after itself. While it is running, it should listen for requests on
-	// the first channel and issue responses on the second channel. You can think of a
-	// Server as containing an imaginary game server (the main thread or process or machine)
-	// that manages various games, and a network server that listens for requests. These two
-	// communicate via the two channels.
+type UIRequestTranslator interface {
+	Consume(*UIRequest) (uint64, error)    // (incoming ui req) => (how many produced, error)
+	Produce(*[]NetRequest) (uint64, error) // (outgoing net req) => (how many produced, error)
 }
 
-type NetClientLike interface {
-	Connect(*string) (chan *NetRequest, chan *NetResponse, error) // (remote addr) => (reqs, resps, error)
-	Close() error                                                 // () => (error)
-
-	// Internally, a net client is like the net server in that it encodes/decodes *Request
-	// formatted request into network types to send on the wire, but instead of serving,
-	// it connects to a server.
+type NetResponseTranslator interface {
+	Consume(*interface{}) (uint64, error)   // (incoming proto) => (how many produced, error)
+	Produce(*[]NetResponse) (uint64, error) // (outgoing net resp) => (how many produced, error)
 }
 
-type ClientLike interface {
-	Init(chan *NetRequest, chan *NetResponse, chan *UIRequest, chan *UIResponse) error // (net reqs, net resps, ui reqs, ui resps) => (error)
-	Start() error                                                                      // () => (error)
-	Stop() error                                                                       // () => (error)
-
-	// Internally, you can think of a client as having a UIClient and a NetClient. The UIClient listens to
-	// for the user to press buttons and do other things to request stuff. Then the UIClient sends that on the
-	// UIRequest channel. The client parses it and formats it into a requst, forwarding it to the NetClient.
-	// The net client then requests from the server. When the server responsds, it's decoded, parsed, re-encoded,
-	// and sent to the UI. Not all thing the UI sends may be sent to the server, and not all things the server
-	// sends back may be sent to the UI.
-}
-
-type UILike interface {
-	Init() (chan *UIRequest, chan *UIResponse, error) // () => (ui reqs, ui resps, error)
-	Start() error                                     // () => error
-	Stop() error                                      // () => error
-
-	// A UI should be a CLI or a GUI. For UX it should probably have additional settings for
-	// color schemes, keybindings, and other such things.
+type UIResponseTranslator interface {
+	Consume(*NetResponse) (uint64, error)  // (incoming net resp) => (how many produced, error)
+	Produce([]*UIResponse) (uint64, error) // (outgoing ui resp) => (how many produced, error)
 }

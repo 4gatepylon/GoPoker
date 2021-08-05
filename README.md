@@ -44,3 +44,4 @@ Right now my goal is just to get a working MVP. I'm defining interfaces where I 
 - Add backups to server in case of process failure, potentially in case of server failure too
 - Add forking potentially and other optimization/parallelism for high availability
 - Document well, consider some ascii pictures
+- Add smarter logging (i.e. to files in a specific structure)
