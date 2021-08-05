@@ -28,10 +28,11 @@ PS, In the future, as I add more protos and whatnot, it's possible that I may cr
 # What's left
 Right now my goal is just to get a working MVP. I'm defining interfaces where I think it will be reasonable to upgrade things in the future (for you or for me). For example: the game (because it is meaningfully optimizeable, backupable, etc...), some elements in the networking stack (i.e. you may prefer to use REST + websockets or some other technology; this is important, because it will allow for easier cross-platform gaming like browser-to-client).
 
-1. Finishing up the game + testing itself (check todos inside `game.go`; also, make sure to test `utils/naming.go` as well)
-2. Creating a CLI interface for clients that has a NetClient of some kind (implement ClientLike and UILike)
-3. Creating a flags CLI interface for server launch that hs a NetServer of some kind (implement ServerLike)
-4. Creating a server/client protocol with GRPC on the wire; implement NetServer and NetClient; finally, integrate
+1. Creating a server/client protocol proto for the wire.
+2. Finishing up the game + testing itself (check todos inside `game.go`; also, make sure to test `utils/naming.go` as well)
+3. Creating a CLI interface for clients that has a NetClient of some kind (implement ClientLike and UILike)
+4. Creating a flags CLI interface for server launch that hs a NetServer of some kind (implement ServerLike)
+5. Integrate networking with other functionality. Remember to unit test everything seperately as need be.
 
 # Resources I Used
 - Remember to test grpc as well: `https://stackoverflow.com/questions/42102496/testing-a-grpc-service`.
