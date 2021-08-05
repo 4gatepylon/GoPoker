@@ -41,7 +41,7 @@ type Game struct {
 	StartingChips uint64 // The amount of chips to give to new players when they join (default will be 10x bb)
 }
 
-func New(creator string, args *GameInitArgs) (*Game, error) {
+func New(creator *string, args *GameInitArgs) (GameLike, error) {
 	joinCode := args.JoinCode
 	if joinCode == nil {
 		jc := fmt.Sprintf("%s-%s", utils.RandVerbAdv(nil), utils.RandString(3))
@@ -50,7 +50,7 @@ func New(creator string, args *GameInitArgs) (*Game, error) {
 
 	name := args.Name
 	if name == nil {
-		n := fmt.Sprintf("%s's game", creator)
+		n := fmt.Sprintf("%s's game", *creator)
 		name = &n
 	}
 	maxPlayers := args.MaxPlayers // Recall zero is unlimited
@@ -77,10 +77,10 @@ func New(creator string, args *GameInitArgs) (*Game, error) {
 		StartingChips: startingChips,     // ...
 	}
 
-	g.AddPlayer(&creator)
-	g.ModPlayer(&creator, PSTATUS_ADMIN)
+	g.AddPlayer(creator)
+	g.ModPlayer(creator, PSTATUS_ADMIN)
 
-	return g, nil
+	return nil, nil
 }
 
 // REQUIRES ADMIN

@@ -64,7 +64,7 @@ const (
 )
 
 // A GameLike should be able to manipulate CardLikes accordingly. The string method
-// will be desired to communiate with players.
+// will be desired to communiate with players. Format is "<number><suit>" i.e. "10H" for ten of hearts.
 type CardLike interface {
 	String() string
 }
@@ -94,6 +94,7 @@ type GameLike interface {
 	Players() []*PlayerInfo                   // () => (an informative list of players in order of play)
 	Stakes() uint64                           // () => (value of big blind in chips)
 	Middle() *[5]CardLike                     // () => (array of cards in the middle)
+	Pots() []uint64                           // () => (a slice of monetary values of pots)
 
 	// Game Status
 	ChangeGameName(*string, *string) (bool, error) // (name changer, desired name) => (changed name, error)
@@ -113,7 +114,19 @@ type GameLike interface {
 	Resolve() (*string, error) // () => (winners' informative message, error)
 	NewRound() error           // () => (error)
 	Renew() error              // () => (error)
+
+	// System Maintenance
+	// There should exist a function NewGame(...) or InitGame(...) that
+	// creates a new one and initializes any side-effects
+	Teardown() error
 }
+
+// Note that this interface, while descrabing what is necessary to be a game, does not describe the specific
+// functionality which you should expect of a regular game. Instead, look at game_test.go to understand that
+// a little better. There are cases, such as one or zero players and a game that is ongoing, which are not
+// valid and stopped by specific play implementions or the servers which run them. These are either tested on
+// server tests or not tested at all since they are not desired configurations. Alternatively, they may be tested
+// of specific implementations.
 
 type GameInitArgs struct {
 	// Human-Identifyiers
@@ -127,7 +140,7 @@ type GameInitArgs struct {
 	Stakes        uint64
 	Mode          uint64
 
-	// Renew Information
+	// Renew Information (if you keep chips you must keep players)
 	KeepPlayers bool
 	KeepChips   bool
 }
