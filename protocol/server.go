@@ -1,4 +1,4 @@
-package main
+package protocol
 
 type NetServerLike interface {
 	// External Control

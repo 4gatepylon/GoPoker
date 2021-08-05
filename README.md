@@ -28,8 +28,8 @@ PS, In the future, as I add more protos and whatnot, it's possible that I may cr
 # What's left
 Right now my goal is just to get a working MVP. I'm defining interfaces where I think it will be reasonable to upgrade things in the future (for you or for me). For example: the game (because it is meaningfully optimizeable, backupable, etc...), some elements in the networking stack (i.e. you may prefer to use REST + websockets or some other technology; this is important, because it will allow for easier cross-platform gaming like browser-to-client).
 
-1. Creating a server/client protocol proto for the wire.
-2. Finishing up the game + testing itself (check todos inside `game.go`; also, make sure to test `utils/naming.go` as well)
+1. IMPORTANT Simplify the internal protocols (wire protocol should be OK for now...); still try to leave the door open to SDL, etc... Also simplify the folder structure a little bit if you can
+2. IMPORTANT Finishing up the game + testing itself (check todos inside `game.go`; also, make sure to test `utils/naming.go` as well)
 3. Creating a CLI interface for clients that has a NetClient of some kind (implement ClientLike and UILike)
 4. Creating a flags CLI interface for server launch that hs a NetServer of some kind (implement ServerLike)
 5. Integrate networking with other functionality. Remember to unit test everything seperately as need be.
@@ -46,3 +46,7 @@ Right now my goal is just to get a working MVP. I'm defining interfaces where I 
 - Add forking potentially and other optimization/parallelism for high availability
 - Document well, consider some ascii pictures
 - Add smarter logging (i.e. to files in a specific structure)
+- Add Game Controller interfaces (etc)
+- Add Installer
+- Add Builder
+- Add secure networking

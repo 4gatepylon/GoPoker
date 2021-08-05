@@ -1,4 +1,4 @@
-package main
+package protocol
 
 import (
 	"github.com/4gatepylon/GoPoker/poker"
@@ -15,7 +15,7 @@ import (
 // You can imagine UIs as having a button per move.
 
 const (
-	NET_RQTYPE_PLAYER_CHECK      uint64 = 1 << iota // = poker.MTYPE_CHECK
+	NET_RQTYPE_CHECK  uint64 = 1 << iota            // = poker.MTYPE_CHECK
 	NET_RQTYPE_FOLD                                 // = poker.MTYPE_FOLD
 	NET_RQTYPE_CALL                                 // = poker.MTYPE_CALL
 	NET_RQTYPE_CALL_ANY                             // = poker.MTYPE_CALL_ANY
@@ -24,6 +24,7 @@ const (
 	NET_RQTYPE_REQ_MOD
 	NET_RQTYPE_MESSAGE
 	NET_RQTYPE_JOIN
+	NET_RQTYPE_CREATE
 	NET_RQTYPE_LEAVE
 	NET_RQTYPE_SHOW_CARDS
 	NET_RQTYPE_SHOW_LEFT_CARD
@@ -39,7 +40,7 @@ const (
 )
 
 const (
-	UI_RQTYPE_PLAYER_CHECK      uint64 = 1 << iota // = NET_* = poker.MTYPE_CHECK
+	UI_RQTYPE_CHECK uint64 = 1 << iota             // = NET_* = poker.MTYPE_CHECK
 	UI_RQTYPE_FOLD                                 // = NET_* = poker.MTYPE_FOLD
 	UI_RQTYPE_CALL                                 // = NET_* = poker.MTYPE_CALL
 	UI_RQTYPE_CALL_ANY                             // = NET_* = poker.MTYPE_CALL_ANY

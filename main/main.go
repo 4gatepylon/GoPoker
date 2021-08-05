@@ -3,8 +3,6 @@ package main
 import (
 	"flag"
 	"log"
-
-	"github.com/4gatepylon/GoPoker/net"
 )
 
 func main() {
@@ -17,9 +15,7 @@ func main() {
 	}
 	if *runClient {
 		log.Printf("Running client\n")
-		net.RunClient()
 		return
 	}
-	net.RunServer()
 	log.Printf("Running server\n")
 }

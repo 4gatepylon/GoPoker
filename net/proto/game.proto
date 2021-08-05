@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+option go_package = "github.com/4gatepylon/GoPoker/net/proto";
+
+package proto;
+
+service GameServer {
+  // Lobby Methods
+  rpc JoinGame(JoinGameRequest) returns (JoinGameResponse) {}
+  rpc CreateGame(CreateGameRequest) returns (CreateGameResponse) {}
+  rpc LeaveGame(LeaveGameRequest) returns(LeaveGameResponse) {}
+
+  // Join a game stream given a stream code, then recieve a stream of
+  // responses. The stream code may change over time (i.e. as players are
+  // kicked and try to rejoin). The last message of the previous stream will
+  // send the updated stream code, and the connection will be re-established.
+  rpc GameStream(stream GameRequest) returns (stream GameResponse) {}
+}
+
+// Game Stream Messages
+message PlayerInfo {
+  string name = 1;
+  uint64 chips = 2;
+  uint64 player_pot = 3;
+  optional uint64 left_card = 4;
+  optional uint64 right_card = 5;
+  optional bool is_admin = 6;
+}
+
+message MiddleInfo {
+  repeated uint64 middle = 1;
+  repeated uint64 pots = 2;
+}
+
+message GameInfo {
+  repeated PlayerInfo players = 1;
+  optional MiddleInfo middle = 2;
+  optional string newest_chat_message = 3;
+}
+
+enum ActionType {
+  NULL_ACTION = 0;
+  CHECK = 1;
+	FOLD = 2;
+	CALL = 3;
+	CALL_ANY = 4;
+	BET = 5;
+	SITOUT_NEXT_ROUND = 6;
+	REQ_MOD = 7;
+	CHAT_MESSAGE = 8;
+  SHOW_CARDS = 9;
+	SHOW_LEFT_CARD = 10;
+	SHOW_RIGHT_CARD = 11;
+  SHOW_BOTH_CARDS = 12;
+}
+
+enum StreamControl {
+  NULL_STREAMCONTROL = 0;
+  STREAM_CODE_UPDATE = 1;
+  STREAM_ENDED_LEFT = 2;
+  STREAM_ENDED_KICKED = 3;
+  STREAM_ENDED_GAME_ENDED = 4;
+  STREAM_ENDED_INTERNAL = 5;
+}
+
+message GameRequest {
+  uint64 stream_code = 1;
+  string player_name = 2;
+  repeated ActionType action = 3;
+
+}
+
+message GameResponse {
+  GameInfo info = 1;
+  optional uint64 new_stream_code = 4;
+  optional StreamControl change_stream_code = 5;
+}
+
+// Lobby Messages
+message JoinGameRequest {
+  string name = 1;
+  string player_name = 2;
+  optional string join_code = 3;
+}
+
+message JoinGameResponse {
+  bool join_successful = 1;
+  optional uint64 stream_code = 2;
+  optional GameInfo game_info = 3;
+}
+
+message CreateGameRequest {
+  string player_name = 1;
+  optional string name = 2;
+  optional string join_code = 3;
+  optional bool private = 4;
+}
+
+message CreateGameResponse {
+  uint64 stream_code = 1;
+  optional bool create_successful = 2;
+}
+
+message LeaveGameRequest {
+  uint64 stream_code = 1;
+  string player_name = 2;
+}
+
+message LeaveGameResponse {
+  optional string result_message = 1;
+}
+

@@ -1,4 +1,4 @@
-package main
+package protocol
 
 type UILike interface {
 	Init() (chan *UIRequest, chan *UIResponse, error) // () => (ui reqs, ui resps, error)
