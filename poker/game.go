@@ -43,6 +43,12 @@ const (
 	PSTATUS_PLAYING
 )
 
+// Player Permissions (right now same as status)
+const (
+	PPERM_ADMIN uint64 = 1 << iota
+	_
+)
+
 // Game Status
 const (
 	GSTATUS_PLAYING byte = 1 << iota
@@ -71,7 +77,7 @@ type CardLike interface {
 
 type PlayerInfo struct {
 	// Human-Identifiers
-	Name  *string
+	Name  string
 	Chips uint64
 	Pot   uint64
 
@@ -90,11 +96,11 @@ type GameLike interface {
 	ModPlayer(*string, *string, uint64) (bool, error) // (modder name, modded name, mod perms) => (modded, error)
 
 	// Player Control Plane
-	AddPlayer(*string) (*string, bool, error) // (prospective player name) => (player name, joined, error)
-	Players() []*PlayerInfo                   // () => (an informative list of players in order of play)
-	Stakes() uint64                           // () => (value of big blind in chips)
-	Middle() *[5]CardLike                     // () => (array of cards in the middle)
-	Pots() []uint64                           // () => (a slice of monetary values of pots)
+	AddPlayer(*string, *string) (*string, bool, error) // (prospective player name, join code) => (player name, joined, error)
+	Players() []*PlayerInfo                            // () => (an informative list of players in order of play)
+	Stakes() uint64                                    // () => (value of big blind in chips)
+	Middle() *[5]CardLike                              // () => (array of cards in the middle)
+	Pots() []uint64                                    // () => (a slice of monetary values of pots)
 
 	// Game Status
 	ChangeGameName(*string, *string) (bool, error) // (name changer, desired name) => (changed name, error)
