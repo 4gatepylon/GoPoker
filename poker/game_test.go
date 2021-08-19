@@ -5,6 +5,8 @@ import (
 	"fmt"
 )
 
+// TODO finish this unit-testing (at least in a single-threaded environment)
+
 // The same creator name is used for all tests for convenience
 const creator string = "creator"
 const join_code string = "join_code"

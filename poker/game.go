@@ -39,7 +39,7 @@ const (
 
 // Player Status
 const (
-	PSTATUS_ADMIN byte = 1 << iota
+	PSTATUS_ADMIN uint64 = 1 << iota
 	PSTATUS_PLAYING
 )
 
@@ -51,7 +51,7 @@ const (
 
 // Game Status
 const (
-	GSTATUS_PLAYING byte = 1 << iota
+	GSTATUS_PLAYING uint64 = 1 << iota
 	GSTATUS_PRIVATE
 )
 
@@ -62,11 +62,11 @@ const (
 
 // Defaults for standard games
 const (
-	DEFAULT_STAKES                 = 1000               // Default big blind is 1000 chips
-	DEFAULT_MAX_PLAYERS            = 6                  // By default allow six players maximum
-	DEFAULT_MODE                   = GMODE_CONST_STAKES // Standard games have constant stakes.
-	DEFAULT_STATUS                 = 0                  // The default status is the null status (not started)
-	DEFAULT_STAKES_HAND_MULTIPLIER = 100                // DEFAULT_STAKES * ..._MULTIPLIER = default starting hand
+	DEFAULT_STAKES uint64                 = 1000               // Default big blind is 1000 chips
+	DEFAULT_MAX_PLAYERS uint64            = 6                  // By default allow six players maximum
+	DEFAULT_MODE uint64                   = GMODE_CONST_STAKES // Standard games have constant stakes.
+	DEFAULT_STATUS uint64                 = 0                  // The default status is the null status (not started)
+	DEFAULT_STAKES_HAND_MULTIPLIER uint64 = 100                // DEFAULT_STAKES * ..._MULTIPLIER = default starting hand
 )
 
 // A GameLike should be able to manipulate CardLikes accordingly. The string method
@@ -79,7 +79,7 @@ type PlayerInfo struct {
 	// Human-Identifiers
 	Name  string
 	Chips uint64
-	Pot   uint64
+	Bet   uint64
 
 	// Game Server-Only
 	Id    uint64
@@ -112,8 +112,9 @@ type GameLike interface {
 	Private() bool                                 // () => (game is private)
 
 	// Game Flow
-	Move(uint64, uint64, *string) (bool, error)               // (move, chips: optional, mover) => (moved, error)
-	ChangePlayerName(*string, *string) (*string, bool, error) // (namer, player) => (new name, renamed, error)
+	Move(uint64, uint64, *string) (bool, error)                        // (move, chips: optional, mover) => (moved, error)
+	ChangePlayerName(*string, *string, *string) (*string, bool, error) // (namer, player, new name) => (new name, renamed, error)
+	GiveChips(*string, *string, uint64) (bool, error)
 
 	// Game Flow Control Plane
 	Increment() (bool, error)  // () => (incremented, error)
@@ -140,10 +141,10 @@ type GameInitArgs struct {
 	JoinCode *string
 
 	// Game Settings
-	Public        bool
+	Public        bool 
 	MaxPlayers    uint64
-	StartingChips uint64
 	Stakes        uint64
+	StartingChips uint64
 	Mode          uint64
 
 	// Renew Information (if you keep chips you must keep players)
